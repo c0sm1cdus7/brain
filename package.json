@@ -1,7 +1,8 @@
 {
     "name": "brain",
     "version": "1.0.0",
-    "main": "dist/main.js",
+    "main": "dist/index.js",
+    "types": "index.d.ts",
     "scripts": {
         "build": "tsup src/index.ts --dts --format esm,cjs"
     },

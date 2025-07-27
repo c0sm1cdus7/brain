@@ -2,7 +2,7 @@
     "name": "brain",
     "version": "1.0.0",
     "main": "dist/index.js",
-    "types": "src/index.d.ts",
+    "types": "dist/index.d.ts",
     "scripts": {
         "build": "tsc --declaration",
         "postinstall": "pnpm run build"

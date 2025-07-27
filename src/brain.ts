@@ -1,15 +1,17 @@
 import { Genome } from "./genome";
-import { Neuron, Synapse } from "./neuron";
-import { NeuralNetwork, NeuralNetworkShape } from "./types";
+import { Neuron } from "./neuron";
+import { Synapse } from "./synapse";
+
+export type Shape = [number, number, number];
 
 export class Brain {
     synapses: Synapse[] = [];
-    neuralNetwork: NeuralNetwork = [[], [], []];
+    neuralNetwork: Neuron[][];
 
     constructor(genome: Genome) {
         const { genes } = genome;
 
-        const shape: NeuralNetworkShape = genome.getNeuralNetworkShape();
+        const shape: Shape = genome.getShape();
 
         this.neuralNetwork = shape.map((length) => Array.from({ length }, () => new Neuron()));
 

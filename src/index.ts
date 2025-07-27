@@ -1,3 +1,4 @@
-export * from "./brain";
 export * from "./genome";
-export * from "./types";
+export * from "./neuron";
+export * from "./synapse";
+export * from "./brain";

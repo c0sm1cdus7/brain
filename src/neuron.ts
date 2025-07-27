@@ -7,15 +7,3 @@ export class Neuron {
         this.accumulator = 0;
     }
 }
-
-export class Synapse {
-    source: Neuron;
-    sink: Neuron;
-    weight: number;
-
-    constructor(source: Neuron, sink: Neuron, weight: number) {
-        this.source = source;
-        this.sink = sink;
-        this.weight = weight;
-    }
-}

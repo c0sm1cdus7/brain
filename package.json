@@ -2,9 +2,9 @@
     "name": "brain",
     "version": "1.0.0",
     "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "types": "src/index.d.ts",
     "scripts": {
-        "build": "tsup src/index.ts --dts --format esm,cjs",
+        "build": "tsc --declaration",
         "postinstall": "pnpm run build"
     },
     "dependencies": {},

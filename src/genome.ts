@@ -82,11 +82,11 @@ export class Genome {
                         break;
                     case 1:
                         gene.sourceLayer = randomInteger(0, 1);
-                        gene.sourceIndex = randomInteger(0, gene.sourceLayer === 1 ? neuralNetworkShape[1] + 1 : neuralNetworkShape[gene.sourceLayer]);
+                        gene.sourceIndex = randomInteger(0, gene.sourceLayer === 1 ? neuralNetworkShape[1] + 1 : neuralNetworkShape[0]);
                         break;
                     case 2:
                         gene.sinkLayer = randomInteger(1, 2);
-                        gene.sinkIndex = randomInteger(0, gene.sinkLayer === 1 ? neuralNetworkShape[1] + 1 : neuralNetworkShape[gene.sinkLayer]);
+                        gene.sinkIndex = randomInteger(0, gene.sinkLayer === 1 ? neuralNetworkShape[1] + 1 : neuralNetworkShape[2]);
                         break;
                 }
             }

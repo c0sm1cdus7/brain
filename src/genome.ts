@@ -57,7 +57,7 @@ export class Genome {
 
         const neuralNetworkShape: NeuralNetworkShape = [
             Math.max(genome1.getNeuralNetworkShape()[0], genome2.getNeuralNetworkShape()[0]),
-            Math.max(genome1.getNeuralNetworkShape()[1], genome2.getNeuralNetworkShape()[1]),
+            Math.max(genome1.getNeuralNetworkShape()[1], genome2.getNeuralNetworkShape()[1]) + 1,
             Math.max(genome1.getNeuralNetworkShape()[2], genome2.getNeuralNetworkShape()[2])
         ];
 
@@ -82,11 +82,11 @@ export class Genome {
                         break;
                     case 1:
                         gene.sourceLayer = randomInteger(0, 1);
-                        gene.sourceIndex = randomInteger(0, gene.sourceLayer === 1 ? neuralNetworkShape[1] + 1 : neuralNetworkShape[0]);
+                        gene.sourceIndex = randomInteger(0, neuralNetworkShape[gene.sourceLayer]);
                         break;
                     case 2:
                         gene.sinkLayer = randomInteger(1, 2);
-                        gene.sinkIndex = randomInteger(0, gene.sinkLayer === 1 ? neuralNetworkShape[1] + 1 : neuralNetworkShape[2]);
+                        gene.sinkIndex = randomInteger(0, neuralNetworkShape[gene.sinkLayer]);
                         break;
                 }
             }

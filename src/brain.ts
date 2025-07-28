@@ -1,6 +1,6 @@
-import { Genome } from "./genome";
-import { Neuron } from "./neuron";
-import { Synapse } from "./synapse";
+import { Genome } from "./genome.js";
+import { Neuron } from "./neuron.js";
+import { Synapse } from "./synapse.js";
 
 export type Shape = [number, number, number];
 

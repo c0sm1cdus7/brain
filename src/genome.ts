@@ -1,5 +1,5 @@
-import { Shape } from "./brain";
-import { randomInteger, randomNumber } from "./utils";
+import { Shape } from "./brain.js";
+import { randomInteger, randomNumber } from "./utils.js";
 
 export class Gene {
     sourceLayer: number;

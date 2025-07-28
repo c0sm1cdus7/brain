@@ -2,7 +2,7 @@ import { Genome } from "./genome.js";
 import { Neuron } from "./neuron.js";
 import { Synapse } from "./synapse.js";
 
-export type Shape = [number, number, number];
+export type NeuralNetworkShape = [number, number, number];
 
 export class Brain {
     synapses: Synapse[] = [];
@@ -11,9 +11,9 @@ export class Brain {
     constructor(genome: Genome) {
         const { genes } = genome;
 
-        const shape: Shape = genome.getShape();
+        const neuralNetworkShape: NeuralNetworkShape = genome.getNeuralNetworkShape();
 
-        this.neuralNetwork = shape.map((length) => Array.from({ length }, () => new Neuron()));
+        this.neuralNetwork = neuralNetworkShape.map((length) => Array.from({ length }, () => new Neuron()));
 
         genes.forEach((gene) => {
             const sourceNeuron = this.neuralNetwork[gene.sourceLayer][gene.sourceIndex];

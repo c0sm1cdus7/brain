@@ -1,4 +1,4 @@
-import { Shape } from "./brain.js";
+import { NeuralNetworkShape } from "./brain.js";
 import { randomInteger, randomNumber } from "./utils.js";
 
 export class Gene {
@@ -16,11 +16,11 @@ export class Gene {
         this.weight = weight;
     }
 
-    static random(Shape: [number, number, number]): Gene {
+    static random(NeuralNetworkShape: [number, number, number]): Gene {
         const sourceLayer = randomInteger(0, 1);
-        const sourceIndex = randomInteger(0, Shape[sourceLayer]);
+        const sourceIndex = randomInteger(0, sourceLayer === 1 ? NeuralNetworkShape[1] + 1 : NeuralNetworkShape[sourceLayer]);
         const sinkLayer = randomInteger(1, 2);
-        const sinkIndex = randomInteger(0, Shape[sinkLayer]);
+        const sinkIndex = randomInteger(0, sinkLayer === 1 ? NeuralNetworkShape[1] + 1 : NeuralNetworkShape[sinkLayer]);
         const weight = randomNumber(-1, 1);
         return new Gene(sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight);
     }
@@ -41,8 +41,8 @@ export class Genome {
         return new Genome(genes);
     }
 
-    getShape(): Shape {
-        const Shape: Shape = [0, 0, 0];
+    getNeuralNetworkShape(): NeuralNetworkShape {
+        const Shape: NeuralNetworkShape = [0, 0, 0];
 
         this.genes.forEach((gene) => {
             Shape[gene.sourceLayer] = Math.max(Shape[gene.sourceLayer], gene.sourceIndex + 1);
@@ -55,7 +55,11 @@ export class Genome {
     static crossover(genome1: Genome, genome2: Genome, mutationRate: number = 0): Genome {
         const length = Math.max(genome1.genes.length, genome2.genes.length);
 
-        const Shape: Shape = [Math.max(genome1.getShape()[0], genome2.getShape()[0]), Math.max(genome1.getShape()[1], genome2.getShape()[1]), Math.max(genome1.getShape()[2], genome2.getShape()[2])];
+        const neuralNetworkShape: NeuralNetworkShape = [
+            Math.max(genome1.getNeuralNetworkShape()[0], genome2.getNeuralNetworkShape()[0]),
+            Math.max(genome1.getNeuralNetworkShape()[1], genome2.getNeuralNetworkShape()[1]),
+            Math.max(genome1.getNeuralNetworkShape()[2], genome2.getNeuralNetworkShape()[2])
+        ];
 
         const genes: Gene[] = [];
 
@@ -78,11 +82,11 @@ export class Genome {
                         break;
                     case 1:
                         gene.sourceLayer = randomInteger(0, 1);
-                        gene.sourceIndex = randomInteger(0, gene.sourceLayer === 1 ? Shape[1] + 1 : Shape[gene.sourceLayer]);
+                        gene.sourceIndex = randomInteger(0, gene.sourceLayer === 1 ? neuralNetworkShape[1] + 1 : neuralNetworkShape[gene.sourceLayer]);
                         break;
                     case 2:
                         gene.sinkLayer = randomInteger(1, 2);
-                        gene.sinkIndex = randomInteger(0, gene.sinkLayer === 1 ? Shape[1] + 1 : Shape[gene.sinkLayer]);
+                        gene.sinkIndex = randomInteger(0, gene.sinkLayer === 1 ? neuralNetworkShape[1] + 1 : neuralNetworkShape[gene.sinkLayer]);
                         break;
                 }
             }

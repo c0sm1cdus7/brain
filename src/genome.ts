@@ -37,7 +37,7 @@ export class Genome {
     static random(neuralNetworkShape: [number, number, number], length: number): Genome {
         const genes: Gene[] = [];
         for (let i = 0; i < length; i++) {
-            neuralNetworkShape[1] = new Genome(genes).getNeuralNetworkShape()[1];
+            neuralNetworkShape[1] = genes ? new Genome(genes).getNeuralNetworkShape()[1] : neuralNetworkShape[1];
             genes.push(Gene.random(neuralNetworkShape));
         }
         return new Genome(genes);

@@ -17,10 +17,11 @@ export class Gene {
     }
 
     static random(neuralNetworkShape: [number, number, number]): Gene {
+        const neuralNetworkShapeMaxIndexes = [neuralNetworkShape[0] - 1, neuralNetworkShape[1], neuralNetworkShape[2] - 1];
         const sourceLayer = randomInteger(0, 1);
-        const sourceIndex = randomInteger(0, neuralNetworkShape[sourceLayer]);
+        const sourceIndex = randomInteger(0, neuralNetworkShapeMaxIndexes[sourceLayer]);
         const sinkLayer = randomInteger(1, 2);
-        const sinkIndex = randomInteger(0, neuralNetworkShape[sinkLayer]);
+        const sinkIndex = randomInteger(0, neuralNetworkShapeMaxIndexes[sinkLayer]);
         const weight = randomNumber(-1, 1);
         return new Gene(sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight);
     }

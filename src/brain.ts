@@ -2,13 +2,16 @@ import { Genome } from "./genome.js";
 import { Neuron } from "./neuron.js";
 import { Synapse } from "./synapse.js";
 
+export type Shape = [number, number, number];
+
 export class Brain {
     synapses: Synapse[] = [];
     neurons: Neuron[][];
 
     constructor(genome: Genome) {
         const { genes } = genome;
-        const shape: number[] = Genome.getShape(genes);
+
+        const shape = genome.getShape();
 
         this.neurons = shape.map((length) => Array.from({ length }, () => new Neuron()));
 

@@ -34,12 +34,23 @@ export class Genome {
         this.genes = genes;
     }
 
-    static random(neuralNetworkShape: [number, number, number], length: number): Genome {
+    static random(neuralNetworkShape: [number | null, number | null, number | null], length: number): Genome {
         const genes: Gene[] = [];
+
+        const undefinedInputLayer = neuralNetworkShape[0] === null;
+        const undefinedHiddenLayer = neuralNetworkShape[1] === null;
+        const undefinedOutputLayer = neuralNetworkShape[2] === null;
+
         for (let i = 0; i < length; i++) {
-            neuralNetworkShape[1] = genes ? new Genome(genes).getNeuralNetworkShape()[1] : neuralNetworkShape[1];
-            genes.push(Gene.random(neuralNetworkShape));
+            if (undefinedInputLayer || undefinedHiddenLayer || undefinedOutputLayer) {
+                const currentShape = new Genome(genes).getNeuralNetworkShape();
+                if (undefinedInputLayer) neuralNetworkShape[0] = currentShape[0];
+                if (undefinedHiddenLayer) neuralNetworkShape[1] = currentShape[1];
+                if (undefinedOutputLayer) neuralNetworkShape[2] = currentShape[2];
+            }
+            genes.push(Gene.random(neuralNetworkShape as NeuralNetworkShape));
         }
+
         return new Genome(genes);
     }
 

@@ -89,7 +89,7 @@ export class Genome {
                         break;
                     case 2:
                         gene.sinkLayer = randomInteger(1, gene.sourceLayer === 0 ? 1 : 2);
-                        const sinkLayerMaxIndex = gene.sinkLayer === 0 ? outputLayerLength - 1 : hiddenLayerLength;
+                        const sinkLayerMaxIndex = gene.sinkLayer === 2 ? outputLayerLength - 1 : hiddenLayerLength;
                         gene.sinkIndex = randomInteger(0, sinkLayerMaxIndex);
                         break;
                 }

@@ -65,7 +65,8 @@ export class Genome {
     }
 
     static getShape(genes: Gene[]): number[] {
-        const maxLayerIndex = Math.max(...genes.flatMap((gene) => [gene.sourceLayer, gene.sinkLayer]));
+        if (genes.length === 0) return [];
+        const maxLayerIndex = Math.max(3, ...genes.flatMap((gene) => [gene.sourceLayer, gene.sinkLayer]));
         const shape: number[] = Array(maxLayerIndex + 1).fill(0);
 
         genes.forEach((gene) => {

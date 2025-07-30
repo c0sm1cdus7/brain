@@ -28,7 +28,7 @@ export class Genome {
         const genes: Gene[] = [];
 
         for (let i = 0; i < length; i++) {
-            const hiddenLayerLength = new Genome(genes).getShape()[0];
+            const hiddenLayerLength = new Genome(genes).getShape()[1];
             const sourceLayer = randomInteger(0, 1);
             const sourceLayerMaxIndex = sourceLayer === 0 ? inputLayerLength - 1 : hiddenLayerLength;
             const sourceIndex = randomInteger(0, sourceLayerMaxIndex);

@@ -58,7 +58,6 @@ export class Genome {
         const length = Math.max(genome1.genes.length, genome2.genes.length);
 
         const inputLayerLength = Math.max(genome1.getShape()[0], genome2.getShape()[0]) - 1;
-
         const outputLayerLength = Math.max(genome1.getShape()[2], genome2.getShape()[2]) - 1;
 
         const genes: Gene[] = [];
@@ -85,12 +84,12 @@ export class Genome {
                     case 1:
                         gene.sourceLayer = randomInteger(0, 1);
                         const sourceLayerMaxIndex = gene.sourceLayer === 0 ? inputLayerLength - 1 : hiddenLayerLength;
-                        gene.sourceIndex = randomInteger(0, sourceLayerMaxIndex);
+                        gene.sourceIndex = randomInteger(0, Math.max(0, sourceLayerMaxIndex));
                         break;
                     case 2:
                         gene.sinkLayer = randomInteger(1, gene.sourceLayer === 0 ? 1 : 2);
                         const sinkLayerMaxIndex = gene.sinkLayer === 2 ? outputLayerLength - 1 : hiddenLayerLength;
-                        gene.sinkIndex = randomInteger(0, sinkLayerMaxIndex);
+                        gene.sinkIndex = randomInteger(0, Math.max(0, sinkLayerMaxIndex));
                         break;
                 }
             }

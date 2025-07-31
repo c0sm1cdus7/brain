@@ -24,16 +24,27 @@ export class Genome {
         this.genes = genes;
     }
 
-    static random({ inputLayerLength, outputLayerLength, length }: { inputLayerLength: number; outputLayerLength: number; length: number }): Genome {
+    static random({
+        inputLayerLength,
+        hiddenLayerLength,
+        outputLayerLength,
+        length
+    }: {
+        inputLayerLength: number;
+        hiddenLayerLength: number | null;
+        outputLayerLength: number;
+        length: number;
+    }): Genome {
         const genes: Gene[] = [];
 
         for (let i = 0; i < length; i++) {
-            const hiddenLayerLength = new Genome(genes).getShape()[1];
+            const shape = new Genome(genes).getShape();
+            const hiddenLayerMaxIndex = Math.max(hiddenLayerLength ?? 0, shape[1]);
             const sourceLayer = randomInteger(0, 1);
-            const sourceLayerMaxIndex = sourceLayer === 0 ? inputLayerLength - 1 : hiddenLayerLength;
+            const sourceLayerMaxIndex = sourceLayer === 0 ? inputLayerLength - 1 : hiddenLayerMaxIndex;
             const sourceIndex = randomInteger(0, sourceLayerMaxIndex);
             const sinkLayer = randomInteger(1, sourceLayer === 0 ? 1 : 2);
-            const sinkLayerMaxIndex = sinkLayer === 2 ? outputLayerLength - 1 : hiddenLayerLength;
+            const sinkLayerMaxIndex = sinkLayer === 2 ? outputLayerLength - 1 : hiddenLayerMaxIndex;
             const sinkIndex = randomInteger(0, sinkLayerMaxIndex);
             const weight = randomNumber(-1, 1);
             const gene = new Gene(sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight);

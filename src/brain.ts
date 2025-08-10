@@ -17,7 +17,11 @@ export class Brain {
 
         genes.forEach((gene) => {
             const sourceNeuron = this.neurons[gene.sourceLayer][gene.sourceIndex];
-            const sinkNeuron = this.neurons[gene.sinkLayer][gene.sinkIndex];
+            let sinkLayer = gene.sinkLayer;
+            if (sinkLayer === -1) {
+                sinkLayer = this.neurons.length - 1;
+            }
+            const sinkNeuron = this.neurons[sinkLayer][gene.sinkIndex];
             this.synapses.push(new Synapse(sourceNeuron, sinkNeuron, gene.weight));
         });
 

@@ -34,10 +34,10 @@ export class Genome {
             let sinkLayer = randomInteger(sourceLayer, shape.length);
             let sinkLayerMaxIndex = 0;
             if (sinkLayer === shape.length) {
-                sinkLayerMaxIndex = 1;
-            } else if (sinkLayer === shape.length - 1) {
                 sinkLayer = -1;
                 sinkLayerMaxIndex = outputLayerLength - 1;
+            } else if (sinkLayer === shape.length - 1) {
+                sinkLayerMaxIndex = 1;
             } else {
                 sinkLayerMaxIndex = shape[sinkLayer] - 1;
             }
@@ -60,13 +60,16 @@ export class Genome {
 
         return new Genome(genes);
     }
-
     getShape(): number[] {
         const shape: number[] = [];
 
         this.genes.forEach((gene) => {
-            shape[gene.sourceLayer] = Math.max(shape[gene.sourceLayer], gene.sourceIndex + 1);
-            shape[gene.sinkLayer] = Math.max(shape[gene.sinkLayer], gene.sinkIndex + 1);
+            shape[gene.sourceLayer] = Math.max(shape[gene.sourceLayer] ?? 0, gene.sourceIndex + 1);
+            let sinkLayer = gene.sinkLayer;
+            if (sinkLayer === -1) {
+                sinkLayer = shape.length - 1;
+            }
+            shape[sinkLayer] = Math.max(shape[sinkLayer] ?? 0, gene.sinkIndex + 1);
         });
 
         return shape;
@@ -75,8 +78,10 @@ export class Genome {
     static crossover(genome1: Genome, genome2: Genome, mutationRate: number = 0): Genome {
         const length = Math.max(genome1.genes.length, genome2.genes.length);
 
-        const inputLayerLength = Math.max(genome1.getShape()[0], genome2.getShape()[0]) - 1;
-        const outputLayerLength = Math.max(genome1.getShape()[2], genome2.getShape()[2]) - 1;
+        const genome1Shape = genome1.getShape();
+        const genome2Shape = genome2.getShape();
+        const inputLayerLength = Math.max(genome1Shape[0], genome2Shape[0]) - 1;
+        const outputLayerLength = Math.max(genome1Shape[genome1Shape.length - 1], genome2Shape[genome2Shape.length - 1]) - 1;
 
         const genes: Gene[] = [];
 
@@ -107,10 +112,10 @@ export class Genome {
                         let sinkLayer = randomInteger(gene.sourceLayer, shape.length);
                         let sinkLayerMaxIndex = 0;
                         if (sinkLayer === shape.length) {
-                            sinkLayerMaxIndex = 1;
-                        } else if (sinkLayer === shape.length - 1) {
                             sinkLayer = -1;
                             sinkLayerMaxIndex = outputLayerLength - 1;
+                        } else if (sinkLayer === shape.length - 1) {
+                            sinkLayerMaxIndex = 1;
                         } else {
                             sinkLayerMaxIndex = shape[sinkLayer] - 1;
                         }

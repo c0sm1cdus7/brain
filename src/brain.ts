@@ -7,11 +7,9 @@ export type Shape = [number, number, number];
 export class Brain {
     synapses: Synapse[] = [];
     neurons: Neuron[][];
-    private genome: Genome;
 
     constructor(genome: Genome) {
         const { genes } = genome;
-        this.genome = genome;
 
         const shape = genome.getShape();
 
@@ -46,14 +44,14 @@ export class Brain {
     }
 
     feed(input: number[]): number[] {
-        for (let layer = 0; layer < this.neurons.length; layer++) {
-            for (let i = 0; i < this.neurons[layer].length; i++) {
-                if (layer === 0) {
-                    this.neurons[0][i].value = isNaN(input[i]) ? 0 : input[i];
-                } else {
-                    this.neurons[layer][i].accumulator = 0;
-                }
-            }
+        for (let i = 0; i < Math.min(input.length, this.neurons[0].length); i++) {
+            this.neurons[0][i].value = isNaN(input[i]) ? 0 : input[i];
+        }
+
+        for (let layer = 1; layer < this.neurons.length; layer++) {
+            this.neurons[layer].forEach((neuron) => {
+                neuron.accumulator = 0;
+            });
         }
 
         for (const synapse of this.synapses) {
@@ -61,13 +59,12 @@ export class Brain {
         }
 
         for (let layer = 1; layer < this.neurons.length; layer++) {
-            for (const neuron of this.neurons[layer]) {
+            this.neurons[layer].forEach((neuron) => {
                 neuron.value = Math.tanh(neuron.accumulator);
-            }
+            });
         }
 
-        const outputLayer = this.neurons[this.neurons.length - 1].map((neuron) => neuron.value);
-
-        return outputLayer;
+        const outputLayer = this.neurons[this.neurons.length - 1];
+        return outputLayer.map((neuron) => neuron.value);
     }
 }

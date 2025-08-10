@@ -1,9 +1,4 @@
-import { randomInt } from "crypto";
-import { randomNumber } from "./utils.js";
-
-function randomInteger(min: number, max: number): number {
-    return randomInt(min, max + 1);
-}
+import { randomNumber, randomInteger } from "./utils.js";
 
 export class Gene {
     sourceLayer: number;
@@ -28,7 +23,7 @@ export class Genome {
         this.genes = genes;
     }
 
-    static random({ inputLayerLength, hiddenLayers, outputLayerLength, length }: { inputLayerLength: number; hiddenLayers: number; outputLayerLength: number; length: number }): Genome {
+    static create({ inputLayerLength, hiddenLayers, outputLayerLength, length }: { inputLayerLength: number; hiddenLayers: number; outputLayerLength: number; length: number }): Genome {
         const genes: Gene[] = [];
         for (let i = 0; i < length; i++) {
             const shape = new Genome(genes).getShape();
@@ -56,19 +51,19 @@ export class Genome {
         return new Genome(genes);
     }
 
-    getLayerCount(): number {
-        let maxLayer = 0;
-        for (const gene of this.genes) {
-            if (gene.sourceLayer > maxLayer) maxLayer = gene.sourceLayer;
-            if (gene.sinkLayer > maxLayer) maxLayer = gene.sinkLayer;
-        }
-        return maxLayer + 1;
-    }
-
     getShape(): number[] {
-        const shape: number[] = new Array(this.getLayerCount() + 1).fill(0);
+        let maxLayerIndex = 0;
+        for (const gene of this.genes) {
+            if (gene.sourceLayer > maxLayerIndex) maxLayerIndex = gene.sourceLayer;
+            if (gene.sinkLayer > maxLayerIndex) maxLayerIndex = gene.sinkLayer;
+        }
+        const shape: number[] = new Array(maxLayerIndex + 2).fill(0);
         for (const { sourceLayer, sourceIndex, sinkLayer, sinkIndex } of this.genes) {
-            shape[sourceLayer] = Math.max(shape[sourceLayer], sourceIndex + 1);
+            if (sourceLayer === -1) {
+                shape[shape.length - 1] = Math.max(shape[shape.length - 1], sourceIndex + 1);
+            } else {
+                shape[sourceLayer] = Math.max(shape[sourceLayer], sourceIndex + 1);
+            }
             if (sinkLayer === -1) {
                 shape[shape.length - 1] = Math.max(shape[shape.length - 1], sinkIndex + 1);
             } else {
@@ -107,17 +102,21 @@ export class Genome {
                         gene.weight = Math.max(-1, Math.min(1, gene.weight));
                         break;
                     case 1:
-                        gene.sourceLayer = randomInteger(0, shape.length - 2);
+                        let sourceLayer = randomInteger(0, shape.length - 2);
                         let sourceIndex;
                         if (gene.sourceLayer === 0) {
                             sourceIndex = randomInteger(0, inputLayerLength - 1);
+                        } else if (gene.sourceLayer === shape.length - 1) {
+                            sourceLayer = -1;
+                            sourceIndex = randomInteger(0, outputLayerLength - 1);
                         } else {
                             sourceIndex = randomInteger(0, shape[gene.sourceLayer]);
                         }
+                        gene.sourceLayer = sourceLayer;
                         gene.sourceIndex = sourceIndex;
                         break;
                     case 2:
-                        let sinkLayer = randomInteger(gene.sourceLayer === 0 ? 1 : gene.sourceLayer, shape.length - 1);
+                        let sinkLayer = randomInteger(1, shape.length - 1);
                         let sinkIndex: number;
                         if (sinkLayer === shape.length - 1) {
                             sinkLayer = -1;

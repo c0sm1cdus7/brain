@@ -66,6 +66,7 @@ export class Genome {
             if (gene.sinkLayer > maxLayerIndex) maxLayerIndex = gene.sinkLayer;
         }
         const shape: number[] = new Array(maxLayerIndex + 2).fill(0);
+
         for (const { sourceLayer, sourceIndex, sinkLayer, sinkIndex } of this.genes) {
             shape[sourceLayer] = Math.max(shape[sourceLayer], sourceIndex + 1);
             if (sinkLayer === -1) {
@@ -112,7 +113,7 @@ export class Genome {
                     case 2:
                         let sourceLayer = randomInteger(0, shape.length - 2);
                         let sourceIndex;
-                        if (gene.sourceLayer === 0) {
+                        if (sourceLayer === 0) {
                             sourceIndex = randomInteger(0, inputLayerLength - 1);
                         } else {
                             sourceIndex = randomInteger(0, shape[sourceLayer]);

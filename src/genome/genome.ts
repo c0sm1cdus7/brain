@@ -36,16 +36,19 @@ export class Genome {
         for (let i = 0; i < length; i++) {
             const shape = new Genome(genes).getShape();
 
-            const sourceLayer = randomInteger(0, hiddenLayers);
+            let sourceLayer = randomInteger(0, hiddenLayers + 1);
             let sourceIndex;
-            if (sourceLayer === 0) {
+            if (sourceLayer === hiddenLayers + 1) {
+                sourceLayer = -1;
+                sourceIndex = randomInteger(0, outputLayerLength - 1);
+            } else if (sourceLayer === 0) {
                 sourceIndex = randomInteger(0, inputLayerLength - 1);
             } else {
                 sourceIndex = randomInteger(0, shape[sourceLayer] ?? 1);
             }
 
-            let sinkLayer = randomInteger(sourceLayer === 0 ? 1 : sourceLayer, hiddenLayers + 1);
-            let sinkIndex: number;
+            let sinkLayer = randomInteger(1, hiddenLayers + 1);
+            let sinkIndex;
             if (sinkLayer === hiddenLayers + 1) {
                 sinkLayer = -1;
                 sinkIndex = randomInteger(0, outputLayerLength - 1);

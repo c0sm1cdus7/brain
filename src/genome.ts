@@ -29,14 +29,14 @@ export class Genome {
         for (let i = 0; i < length; i++) {
             const shape = new Genome(genes).getShape();
             const sourceLayer = randomInteger(0, hiddenLayers);
-            const sourceIndex = randomInteger(0, sourceLayer === 0 ? inputLayerLength - 1 : shape[sourceLayer]);
+            const sourceIndex = randomInteger(0, sourceLayer === 0 ? inputLayerLength - 1 : shape[sourceLayer] ?? 1);
             let sinkLayer = randomInteger(sourceLayer, hiddenLayers);
             let sinkLayerMaxIndex = 0;
             if (sinkLayer === hiddenLayers) {
                 sinkLayer = -1;
                 sinkLayerMaxIndex = outputLayerLength - 1;
             } else {
-                sinkLayerMaxIndex = shape[sinkLayer] - 1;
+                sinkLayerMaxIndex = (shape[sinkLayer] ?? 1) - 1;
             }
             const sinkIndex = randomInteger(0, sinkLayerMaxIndex);
             const weight = randomNumber(-1, 1);
@@ -105,8 +105,17 @@ export class Genome {
                         gene.weight = Math.max(-1, Math.min(1, gene.weight));
                         break;
                     case 1:
-                        gene.sourceLayer = randomInteger(0, shape.length - 2);
-                        const sourceLayerMaxIndex = gene.sourceLayer === 0 ? inputLayerLength - 1 : shape[gene.sourceLayer];
+                        let sourceLayer = randomInteger(0, shape.length - 2);
+                        let sourceLayerMaxIndex = 0;
+                        if (sourceLayer === shape.length) {
+                            sourceLayer = -1;
+                            sourceLayerMaxIndex = inputLayerLength - 1;
+                        } else if (sourceLayer === shape.length - 1) {
+                            sourceLayerMaxIndex = 1;
+                        } else {
+                            sourceLayer;
+                            sourceLayerMaxIndex = (shape[sourceLayer] ?? 1) - 1;
+                        }
                         gene.sourceIndex = randomInteger(0, Math.max(0, sourceLayerMaxIndex));
                         break;
                     case 2:
@@ -118,7 +127,7 @@ export class Genome {
                         } else if (sinkLayer === shape.length - 1) {
                             sinkLayerMaxIndex = 1;
                         } else {
-                            sinkLayerMaxIndex = shape[sinkLayer] - 1;
+                            sinkLayerMaxIndex = (shape[sinkLayer] ?? 1) - 1;
                         }
                         gene.sinkLayer = sinkLayer;
                         gene.sinkIndex = randomInteger(0, Math.max(0, sinkLayerMaxIndex));

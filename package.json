@@ -8,7 +8,8 @@
     "scripts": {
         "clean": "rm -rf node_modules dist pnpm-lock.yaml",
         "build": "tsc --declaration",
-        "postinstall": "pnpm run build"
+        "postinstall": "pnpm run build",
+        "test": "tsc && node dist/test.js"
     },
     "dependencies": {
         "typescript": "^4.3.5"

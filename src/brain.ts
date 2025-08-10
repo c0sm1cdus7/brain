@@ -76,11 +76,9 @@ export class Brain {
             const outputLayer = this.neurons[this.neurons.length - 1];
             return outputLayer.map((neuron) => neuron.value);
         } catch (error) {
-            console.error(error);
-            console.log(this);
-            console.log(this.neurons);
-            console.log({ GENOME: this.genome.getShape() });
-            throw new Error("Fuck");
+            console.log(this.genome);
         }
+
+        return [];
     }
 }

@@ -16,7 +16,6 @@ describe("Genome", () => {
         });
 
         const shape = genome.getShape();
-        console.log({ shape });
         expect(genome.genes.length).toBe(GENOME_LENGTH);
         expect(shape.length).toBeLessThanOrEqual(HIDDEN_LAYERS + 2);
         expect(shape[0]).toBeLessThanOrEqual(INPUT_LAYER_LENGTH);
@@ -27,10 +26,9 @@ describe("Genome", () => {
         const genome1 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayers: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
         const genome2 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayers: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
 
-        const offspring = Genome.crossover(genome1, genome2, 0.01);
+        const offspring = Genome.crossover(genome1, genome2, 0.5);
         expect(offspring.genes.length).toBe(GENOME_LENGTH);
         const shape = offspring.getShape();
-        console.log({ shape });
         expect(shape.length).toBeLessThanOrEqual(HIDDEN_LAYERS + 2);
         expect(shape[0]).toBeLessThanOrEqual(INPUT_LAYER_LENGTH);
         expect(shape[shape.length - 1]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);

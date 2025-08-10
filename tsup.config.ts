@@ -5,6 +5,7 @@ export default defineConfig({
     outDir: "dist",
     format: ["esm"],
     sourcemap: true,
+    dts: true,
     clean: true,
     target: "es2021"
 });

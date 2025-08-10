@@ -24,21 +24,28 @@ export class Genome {
         this.genes = genes;
     }
 
-    static random({
-        inputLayerLength,
-        hiddenLayerLength,
-        outputLayerLength,
-        length
-    }: {
-        inputLayerLength: number;
-        hiddenLayerLength: number | null;
-        outputLayerLength: number;
-        length: number;
-    }): Genome {
+    static random({ inputLayerLength, outputLayerLength, length }: { inputLayerLength: number; outputLayerLength: number; length: number }): Genome {
         const genes: Gene[] = [];
 
         for (let i = 0; i < length; i++) {
             const shape = new Genome(genes).getShape();
+            const sourceLayer = randomInteger(0, shape.length - 2);
+            const sourceIndex = randomInteger(0, sourceLayer === 0 ? inputLayerLength - 1 : shape[sourceLayer]);
+            let sinkLayer = randomInteger(sourceLayer, shape.length);
+            let sinkLayerMaxIndex = 0;
+            if (sinkLayer === shape.length) {
+                sinkLayerMaxIndex = 1;
+            } else if (sinkLayer === shape.length - 1) {
+                sinkLayer = -1;
+                sinkLayerMaxIndex = outputLayerLength - 1;
+            } else {
+                sinkLayerMaxIndex = shape[sinkLayer] - 1;
+            }
+            const sinkIndex = randomInteger(0, sinkLayerMaxIndex);
+            const weight = randomNumber(-1, 1);
+            const gene = new Gene(sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight);
+            genes.push(gene);
+            /*const shape = new Genome(genes).getShape();
             const hiddenLayerMaxIndex = Math.max(hiddenLayerLength ?? 0, shape[1]);
             const sourceLayer = randomInteger(0, 1);
             const sourceLayerMaxIndex = sourceLayer === 0 ? inputLayerLength - 1 : hiddenLayerMaxIndex;
@@ -48,14 +55,14 @@ export class Genome {
             const sinkIndex = randomInteger(0, sinkLayerMaxIndex);
             const weight = randomNumber(-1, 1);
             const gene = new Gene(sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight);
-            genes.push(gene);
+            genes.push(gene);*/
         }
 
         return new Genome(genes);
     }
 
-    getShape(): Shape {
-        const shape: Shape = [0, 0, 0];
+    getShape(): number[] {
+        const shape: number[] = [];
 
         this.genes.forEach((gene) => {
             shape[gene.sourceLayer] = Math.max(shape[gene.sourceLayer], gene.sourceIndex + 1);
@@ -83,9 +90,36 @@ export class Genome {
             }
         }
 
-        let hiddenLayerLength = Math.max(genome1.getShape()[1], genome2.getShape()[1]) - 1;
         genes.forEach((gene) => {
-            hiddenLayerLength = Math.max(hiddenLayerLength, gene.sourceLayer === 1 ? gene.sourceIndex + 1 : 0, gene.sinkLayer === 1 ? gene.sinkIndex + 1 : 0);
+            if (Math.random() < mutationRate) {
+                const shape = new Genome(genes).getShape();
+                switch (randomInteger(0, 2)) {
+                    case 0:
+                        gene.weight += randomNumber(-0.01, 0.01);
+                        gene.weight = Math.max(-1, Math.min(1, gene.weight));
+                        break;
+                    case 1:
+                        gene.sourceLayer = randomInteger(0, shape.length - 2);
+                        const sourceLayerMaxIndex = gene.sourceLayer === 0 ? inputLayerLength - 1 : shape[gene.sourceLayer];
+                        gene.sourceIndex = randomInteger(0, Math.max(0, sourceLayerMaxIndex));
+                        break;
+                    case 2:
+                        let sinkLayer = randomInteger(gene.sourceLayer, shape.length);
+                        let sinkLayerMaxIndex = 0;
+                        if (sinkLayer === shape.length) {
+                            sinkLayerMaxIndex = 1;
+                        } else if (sinkLayer === shape.length - 1) {
+                            sinkLayer = -1;
+                            sinkLayerMaxIndex = outputLayerLength - 1;
+                        } else {
+                            sinkLayerMaxIndex = shape[sinkLayer] - 1;
+                        }
+                        gene.sinkLayer = sinkLayer;
+                        gene.sinkIndex = randomInteger(0, Math.max(0, sinkLayerMaxIndex));
+                        break;
+                }
+            }
+            /*hiddenLayerLength = Math.max(hiddenLayerLength, gene.sourceLayer === 1 ? gene.sourceIndex + 1 : 0, gene.sinkLayer === 1 ? gene.sinkIndex + 1 : 0);
             if (Math.random() < mutationRate) {
                 switch (randomInteger(0, 2)) {
                     case 0:
@@ -103,7 +137,7 @@ export class Genome {
                         gene.sinkIndex = randomInteger(0, Math.max(0, sinkLayerMaxIndex));
                         break;
                 }
-            }
+            }*/
         });
 
         return new Genome(genes);

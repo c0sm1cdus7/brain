@@ -121,7 +121,7 @@ export class Genome {
                             sourceLayer = -1;
                             sourceIndex = randomInteger(0, outputLayerLength - 1);
                         } else {
-                            sourceIndex = randomInteger(0, shape[gene.sourceLayer]);
+                            sourceIndex = randomInteger(0, shape[sourceLayer]);
                         }
                         gene.sourceLayer = sourceLayer;
                         gene.sourceIndex = sourceIndex;

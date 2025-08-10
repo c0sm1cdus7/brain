@@ -16,12 +16,20 @@ export class Brain {
         this.neurons = shape.map((length) => Array.from({ length }, () => new Neuron()));
 
         genes.forEach((gene) => {
-            const sourceNeuron = this.neurons[gene.sourceLayer][gene.sourceIndex];
+            let sourceLayer = gene.sourceLayer;
+            if (sourceLayer === -1) {
+                sourceLayer = shape.length - 1;
+            }
+            const sourceNeuron = this.neurons[sourceLayer][gene.sourceIndex];
             let sinkLayer = gene.sinkLayer;
             if (sinkLayer === -1) {
                 sinkLayer = this.neurons.length - 1;
             }
             const sinkNeuron = this.neurons[sinkLayer][gene.sinkIndex];
+            if (sourceLayer < 0 || sinkLayer < 0) {
+                console.error(gene);
+                throw new Error();
+            }
             this.synapses.push(new Synapse(sourceNeuron, sinkNeuron, gene.weight));
         });
 

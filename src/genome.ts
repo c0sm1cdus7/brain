@@ -61,6 +61,10 @@ export class Genome {
         const shape: number[] = [];
 
         this.genes.forEach((gene) => {
+            let sourceLayer = gene.sourceLayer;
+            if (sourceLayer === -1) {
+                sourceLayer = shape.length - 1;
+            }
             shape[gene.sourceLayer] = Math.max(shape[gene.sourceLayer] ?? 0, gene.sourceIndex + 1);
             let sinkLayer = gene.sinkLayer;
             if (sinkLayer === -1) {

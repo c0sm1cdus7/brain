@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Genome } from "../src/genome.js";
+import { Genome } from "./genome.js";
 
 describe("Genome", () => {
     const INPUT_LAYER_LENGTH = 2;

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { Synapse } from "../src/synapse.js";
-import { Neuron } from "./neuron.js";
+import { Synapse } from "./synapse.js";
+import { Neuron } from "../neuron/neuron.js";
 
 describe("Synapse", () => {
     it("should be initialized with a source, sink, and weight", () => {

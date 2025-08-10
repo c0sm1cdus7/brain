@@ -1,4 +1,12 @@
-import { randomNumber, randomInteger } from "./utils.js";
+import { randomInt } from "crypto";
+
+function randomNumber(min: number, max: number): number {
+    return Math.random() * (max - min) + min;
+}
+
+function randomInteger(min: number, max: number): number {
+    return randomInt(min, max + 1);
+}
 
 export class Gene {
     sourceLayer: number;

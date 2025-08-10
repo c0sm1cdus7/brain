@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { Genome } from "../src/genome.js";
-import { Brain } from "../src/brain.js";
+import { Genome } from "../genome/genome.js";
+import { Brain } from "./brain.js";
 
 const INPUT_LAYER_LENGTH = 2;
 const HIDDEN_LAYERS = 2;

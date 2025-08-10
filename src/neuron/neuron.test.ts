@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Neuron } from "../src/neuron.js";
+import { Neuron } from "./neuron";
 
 describe("Neuron", () => {
     it("should initialize with a value of 0", () => {

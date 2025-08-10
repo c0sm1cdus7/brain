@@ -1,4 +1,4 @@
-import { Neuron } from "./neuron.js";
+import { Neuron } from "../neuron/neuron.js";
 
 export class Synapse {
     source: Neuron;

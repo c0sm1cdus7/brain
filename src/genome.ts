@@ -43,7 +43,7 @@ export class Genome {
             const sourceLayer = randomInteger(0, 1);
             const sourceLayerMaxIndex = sourceLayer === 0 ? inputLayerLength - 1 : hiddenLayerMaxIndex;
             const sourceIndex = randomInteger(0, sourceLayerMaxIndex);
-            const sinkLayer = randomInteger(1, sourceLayer === 0 ? 1 : 2);
+            const sinkLayer = randomInteger(1, 2);
             const sinkLayerMaxIndex = sinkLayer === 2 ? outputLayerLength - 1 : hiddenLayerMaxIndex;
             const sinkIndex = randomInteger(0, sinkLayerMaxIndex);
             const weight = randomNumber(-1, 1);

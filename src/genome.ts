@@ -1,5 +1,5 @@
 import { randomInt } from "crypto";
-import { randomNumber } from "./utils";
+import { randomNumber } from "./utils.js";
 
 function randomInteger(min: number, max: number): number {
     return randomInt(min, max + 1);

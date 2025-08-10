@@ -29,7 +29,7 @@ export class Genome {
 
         for (let i = 0; i < length; i++) {
             const shape = new Genome(genes).getShape();
-            const sourceLayer = randomInteger(0, shape.length - 2);
+            const sourceLayer = randomInteger(0, Math.min(0, shape.length - 2));
             const sourceIndex = randomInteger(0, sourceLayer === 0 ? inputLayerLength - 1 : shape[sourceLayer]);
             let sinkLayer = randomInteger(sourceLayer, shape.length);
             let sinkLayerMaxIndex = 0;

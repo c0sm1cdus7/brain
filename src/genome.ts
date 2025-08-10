@@ -1,4 +1,3 @@
-import { Shape } from "./brain.js";
 import { randomInteger, randomNumber } from "./utils.js";
 
 export class Gene {
@@ -24,20 +23,18 @@ export class Genome {
         this.genes = genes;
     }
 
-    static random({ inputLayerLength, outputLayerLength, length }: { inputLayerLength: number; outputLayerLength: number; length: number }): Genome {
+    static random({ inputLayerLength, hiddenLayers, outputLayerLength, length }: { inputLayerLength: number; hiddenLayers: number; outputLayerLength: number; length: number }): Genome {
         const genes: Gene[] = [];
 
         for (let i = 0; i < length; i++) {
             const shape = new Genome(genes).getShape();
-            const sourceLayer = randomInteger(0, Math.min(0, shape.length - 2));
+            const sourceLayer = randomInteger(0, hiddenLayers);
             const sourceIndex = randomInteger(0, sourceLayer === 0 ? inputLayerLength - 1 : shape[sourceLayer]);
-            let sinkLayer = randomInteger(sourceLayer, shape.length);
+            let sinkLayer = randomInteger(sourceLayer, hiddenLayers);
             let sinkLayerMaxIndex = 0;
-            if (sinkLayer === shape.length) {
+            if (sinkLayer === hiddenLayers) {
                 sinkLayer = -1;
                 sinkLayerMaxIndex = outputLayerLength - 1;
-            } else if (sinkLayer === shape.length - 1) {
-                sinkLayerMaxIndex = 1;
             } else {
                 sinkLayerMaxIndex = shape[sinkLayer] - 1;
             }

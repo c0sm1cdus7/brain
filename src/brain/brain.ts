@@ -16,7 +16,11 @@ export class Brain {
         this.neurons = shape.map((length) => Array.from({ length }, () => new Neuron()));
 
         genes.forEach((gene) => {
-            const sourceNeuron = this.neurons[gene.sourceLayer][gene.sourceIndex];
+            let sourceLayer = gene.sourceLayer;
+            if (sourceLayer === -1) {
+                sourceLayer = this.neurons.length - 1;
+            }
+            const sourceNeuron = this.neurons[sourceLayer][gene.sourceIndex];
             let sinkLayer = gene.sinkLayer;
             if (sinkLayer === -1) {
                 sinkLayer = this.neurons.length - 1;

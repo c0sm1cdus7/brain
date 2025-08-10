@@ -1,6 +1,6 @@
-import { Genome } from "./genome.js";
-import { Neuron } from "./neuron.js";
-import { Synapse } from "./synapse.js";
+import { Genome } from "./genome";
+import { Neuron } from "./neuron";
+import { Synapse } from "./synapse";
 
 export type Shape = [number, number, number];
 
@@ -50,35 +50,29 @@ export class Brain {
     }
 
     feed(input: number[]): number[] {
-        try {
-            for (let i = 0; i < Math.min(input.length, this.neurons[0].length); i++) {
-                this.neurons[0][i].value = isNaN(input[i]) ? 0 : input[i];
-            }
-
-            for (let layer = 1; layer < this.neurons.length; layer++) {
-                this.neurons[layer].forEach((neuron) => {
-                    neuron.accumulator = 0;
-                });
-            }
-
-            for (const synapse of this.synapses) {
-                const sourceNeuron = synapse.source;
-                const sinkNeuron = synapse.sink;
-                sinkNeuron.accumulator += sourceNeuron.value * synapse.weight;
-            }
-
-            for (let layer = 1; layer < this.neurons.length; layer++) {
-                this.neurons[layer].forEach((neuron) => {
-                    neuron.value = Math.tanh(neuron.accumulator);
-                });
-            }
-
-            const outputLayer = this.neurons[this.neurons.length - 1];
-            return outputLayer.map((neuron) => neuron.value);
-        } catch (error) {
-            console.log(this.genome);
+        for (let i = 0; i < Math.min(input.length, this.neurons[0].length); i++) {
+            this.neurons[0][i].value = isNaN(input[i]) ? 0 : input[i];
         }
 
-        return [];
+        for (let layer = 1; layer < this.neurons.length; layer++) {
+            this.neurons[layer].forEach((neuron) => {
+                neuron.accumulator = 0;
+            });
+        }
+
+        for (const synapse of this.synapses) {
+            const sourceNeuron = synapse.source;
+            const sinkNeuron = synapse.sink;
+            sinkNeuron.accumulator += sourceNeuron.value * synapse.weight;
+        }
+
+        for (let layer = 1; layer < this.neurons.length; layer++) {
+            this.neurons[layer].forEach((neuron) => {
+                neuron.value = Math.tanh(neuron.accumulator);
+            });
+        }
+
+        const outputLayer = this.neurons[this.neurons.length - 1];
+        return outputLayer.map((neuron) => neuron.value);
     }
 }

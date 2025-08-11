@@ -103,7 +103,7 @@ export class Genome {
                 const shape = new Genome(genes).getShape();
                 switch (randomInteger(0, 4)) {
                     case 0:
-                        gene.weight += randomNumber(-0.001, 0.001);
+                        gene.weight += randomNumber(-0.01, 0.01);
                         gene.weight = Math.max(-1, Math.min(1, gene.weight));
                         break;
                     case 1:

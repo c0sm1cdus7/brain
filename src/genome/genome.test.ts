@@ -1,61 +1,143 @@
 import { describe, it, expect } from "vitest";
-import { Genome } from "./genome.js";
+import { Gene, Genome } from "./genome.js";
 
 describe("Genome", () => {
     const INPUT_LAYER_LENGTH = 10;
     const OUTPUT_LAYER_LENGTH = 2;
     const GENOME_LENGTH = 100;
 
-    it("should create a random genome with the correct number of genes and shape", () => {
+    it("should create a random genome with a proper shape", () => {
         const genome = Genome.create({
             inputLayerLength: INPUT_LAYER_LENGTH,
             outputLayerLength: OUTPUT_LAYER_LENGTH,
-            length: GENOME_LENGTH
+            maxLength: GENOME_LENGTH
         });
 
         const shape = genome.getShape();
         const { genes } = genome;
 
         let sourceToOutputConnections = 0;
+        let sourceToHiddenConnection = 0;
+        let hiddenToHiddenConnections = 0;
         let hiddenToOutputConnections = 0;
         let reverseConnections = 0;
+
+        const hiddenLayerLength = shape[1];
+        const hasSource = new Set<number>();
+
+        for (const gene of genes) {
+            if (gene.sinkLayer === 1) {
+                hasSource.add(gene.sinkIndex);
+            }
+        }
+
+        const biasNeurons: number[] = [];
+        for (let i = 0; i < hiddenLayerLength; i++) {
+            if (!hasSource.has(i)) {
+                biasNeurons.push(i);
+            }
+        }
+
         genes.forEach(({ sourceLayer, sinkLayer }) => {
-            if (sourceLayer === 0 && sinkLayer === shape.length - 1) {
+            if (sourceLayer === 0 && sinkLayer === 2) {
                 sourceToOutputConnections++;
-            } else if (sourceLayer === 1 && sinkLayer === shape.length - 1) {
+            } else if (sourceLayer === 1 && sinkLayer === 2) {
                 hiddenToOutputConnections++;
+            } else if (sourceLayer === 0 && sinkLayer === 1) {
+                sourceToHiddenConnection++;
+            } else if (sourceLayer === 1 && sinkLayer === 1) {
+                hiddenToHiddenConnections++;
             } else if (sourceLayer > sinkLayer) {
                 reverseConnections++;
             }
         });
 
-        expect(shape[0]).toBe(INPUT_LAYER_LENGTH);
-        expect(shape[2]).toBe(OUTPUT_LAYER_LENGTH);
-        expect(sourceToOutputConnections + hiddenToOutputConnections).toBeGreaterThan(0);
+        console.log({
+            shape,
+            sourceToOutputConnections,
+            sourceToHiddenConnection,
+            hiddenToHiddenConnections,
+            hiddenToOutputConnections,
+            reverseConnections,
+            biasNeurons: biasNeurons.length,
+            genomeLength: genes.length
+        });
+
+        expect(shape[0]).toBeLessThanOrEqual(INPUT_LAYER_LENGTH);
+        expect(shape[2]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
+        expect(sourceToOutputConnections).toBe(0);
+        expect(hiddenToHiddenConnections).toBeGreaterThan(0);
+        expect(hiddenToOutputConnections).toBeGreaterThan(0);
         expect(reverseConnections).toBe(0);
     });
 
-    it("should perform crossover and produce a valid offspring genome, with a valid shape", () => {
-        const genome1 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
-        const genome2 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
-        const offspring = Genome.crossover(genome1, genome2, 0);
-        const shape = offspring.getShape();
-        const { genes } = offspring;
-
+    it("should perform crossover and produce valid offsprings, with a valid shape", () => {
         let sourceToOutputConnections = 0;
+        let sourceToHiddenConnection = 0;
+        let hiddenToHiddenConnections = 0;
         let hiddenToOutputConnections = 0;
         let reverseConnections = 0;
-        genes.forEach(({ sourceLayer, sinkLayer }) => {
-            if (sourceLayer === 0 && sinkLayer === shape.length - 1) {
-                sourceToOutputConnections++;
-            } else if (sourceLayer === 1 && sinkLayer === shape.length - 1) {
-                hiddenToOutputConnections++;
-            } else if (sourceLayer > sinkLayer) {
-                reverseConnections++;
-            }
-        });
+        let shape: [number, number, number] = [0, 0, 0];
+        let genes: Gene[] = [];
+        let biasNeurons: number[] = [];
+        for (let attempts = 0; attempts < 100; attempts++) {
+            const genome1 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, outputLayerLength: OUTPUT_LAYER_LENGTH, maxLength: GENOME_LENGTH });
+            const genome2 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, outputLayerLength: OUTPUT_LAYER_LENGTH, maxLength: GENOME_LENGTH });
+            const offspring = Genome.crossover(genome1, genome2, 1);
+            shape = offspring.getShape();
+            genes = offspring.genes;
 
-        expect(sourceToOutputConnections + hiddenToOutputConnections).toBeGreaterThan(0);
+            sourceToOutputConnections = 0;
+            sourceToHiddenConnection = 0;
+            hiddenToHiddenConnections = 0;
+            hiddenToOutputConnections = 0;
+            reverseConnections = 0;
+
+            const hiddenLayerLength = shape[1];
+            const hasSource = new Set<number>();
+
+            for (const gene of genes) {
+                if (gene.sinkLayer === 1) {
+                    hasSource.add(gene.sinkIndex);
+                }
+            }
+
+            biasNeurons = [];
+            for (let i = 0; i < hiddenLayerLength; i++) {
+                if (!hasSource.has(i)) {
+                    biasNeurons.push(i);
+                }
+            }
+
+            genes.forEach(({ sourceLayer, sinkLayer }) => {
+                if (sourceLayer === 0 && sinkLayer === 2) {
+                    sourceToOutputConnections++;
+                } else if (sourceLayer === 1 && sinkLayer === 2) {
+                    hiddenToOutputConnections++;
+                } else if (sourceLayer === 0 && sinkLayer === 1) {
+                    sourceToHiddenConnection++;
+                } else if (sourceLayer === 1 && sinkLayer === 1) {
+                    hiddenToHiddenConnections++;
+                } else if (sourceLayer > sinkLayer) {
+                    reverseConnections++;
+                }
+            });
+        }
+        console.log({
+            shape,
+            sourceToOutputConnections,
+            sourceToHiddenConnection,
+            hiddenToHiddenConnections,
+            hiddenToOutputConnections,
+            reverseConnections,
+            biasNeurons: biasNeurons.length,
+            genomeLength: genes.length
+        });
+        expect(shape[0]).toBeLessThanOrEqual(INPUT_LAYER_LENGTH);
+        expect(shape[2]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
+        expect(sourceToOutputConnections).toBe(0);
+        expect(hiddenToHiddenConnections).toBeGreaterThan(0);
+        expect(hiddenToOutputConnections).toBeGreaterThan(0);
         expect(reverseConnections).toBe(0);
     });
 });

@@ -74,7 +74,23 @@ class Map {
             [1, 0],
             [-1, 1],
             [0, 1],
-            [1, 1]
+            [1, 1],
+            [-2, -2],
+            [-1, -2],
+            [0, -2],
+            [1, -2],
+            [2, -2],
+            [-2, -1],
+            [2, -1],
+            [-2, 0],
+            [2, 0],
+            [-2, 1],
+            [2, 1],
+            [-2, 2],
+            [-1, 2],
+            [0, 2],
+            [1, 2],
+            [2, 2]
         ];
         return positions.map(([dx, dy]) => {
             return this.checkPosition({ x: x + dx, y: y + dy });
@@ -91,6 +107,8 @@ interface SimulationOptions {
     selectionRate: number;
     genomeLength: number;
     mutationRate: number;
+    inputLayerLength: number;
+    outputLayerLength: number;
 }
 
 export class Simulation {
@@ -105,12 +123,12 @@ export class Simulation {
     }
 
     run(steps: number) {
-        const { population, genomeLength, selectionRate, mutationRate } = this.options;
+        const { population, genomeLength, selectionRate, mutationRate, inputLayerLength, outputLayerLength } = this.options;
         while (this.genepool.length < population) {
             const genome = Genome.create({
-                inputLayerLength: 8,
-                outputLayerLength: 2,
-                length: genomeLength
+                inputLayerLength,
+                outputLayerLength,
+                maxLength: genomeLength
             });
             this.genepool.push(genome);
         }
@@ -141,9 +159,9 @@ export class Simulation {
         }
         const reproducers: Genome[] = [];
         this.map.agents.forEach(({ position, genome }) => {
-            const { x, y } = position;
-            const { width, height } = this.map;
-            if (x >= width * (1 - selectionRate) && y <= height * (1 - selectionRate)) {
+            const { x } = position;
+            const { width } = this.map;
+            if (x >= width * (1 - selectionRate)) {
                 reproducers.push(genome);
             }
         });

@@ -19,7 +19,7 @@ describe("Brain", () => {
     const genome = Genome.create({
         inputLayerLength: INPUT_LAYER_LENGTH,
         outputLayerLength: OUTPUT_LAYER_LENGTH,
-        length: GENOME_LENGTH
+        maxLength: GENOME_LENGTH
     });
 
     const brain = new Brain(genome);

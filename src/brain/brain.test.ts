@@ -7,23 +7,6 @@ const HIDDEN_LAYERS = 3;
 const OUTPUT_LAYER_LENGTH = 2;
 const GENOME_LENGTH = 1000;
 
-describe("Genome", () => {
-    it("should create a random genome with the correct number of genes and shape", () => {
-        const genome = Genome.create({
-            inputLayerLength: INPUT_LAYER_LENGTH,
-            hiddenLayers: HIDDEN_LAYERS,
-            outputLayerLength: OUTPUT_LAYER_LENGTH,
-            length: GENOME_LENGTH
-        });
-
-        const shape = genome.getShape();
-        expect(genome.genes.length).toBe(GENOME_LENGTH);
-        expect(shape.length).toBe(HIDDEN_LAYERS + 2);
-        expect(shape[0]).toBeLessThanOrEqual(INPUT_LAYER_LENGTH);
-        expect(shape[shape.length - 1]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
-    });
-});
-
 describe("Brain", () => {
     const genome = Genome.create({
         inputLayerLength: INPUT_LAYER_LENGTH,

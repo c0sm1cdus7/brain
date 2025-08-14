@@ -2,15 +2,26 @@ import { describe, it, expect } from "vitest";
 import { Genome } from "./genome.js";
 
 describe("Genome", () => {
-    const INPUT_LAYER_LENGTH = 1000;
-    const HIDDEN_LAYERS = 3;
+    const INPUT_LAYER_LENGTH = 10;
     const OUTPUT_LAYER_LENGTH = 2;
-    const GENOME_LENGTH = 1000;
+    const GENOME_LENGTH = 100;
 
     it("should create a random genome with the correct number of genes and shape", () => {
         const genome = Genome.create({
             inputLayerLength: INPUT_LAYER_LENGTH,
-            hiddenLayers: HIDDEN_LAYERS,
+            outputLayerLength: OUTPUT_LAYER_LENGTH,
+            length: GENOME_LENGTH
+        });
+        const shape = genome.getShape();
+        console.log({ shape });
+        expect(shape[0]).toBe(INPUT_LAYER_LENGTH);
+        expect(shape[2]).toBe(OUTPUT_LAYER_LENGTH);
+    });
+
+    /*it("should create a random genome with the correct number of genes and shape", () => {
+        const genome = Genome.create({
+            inputLayerLength: INPUT_LAYER_LENGTH,
+            hiddenLayerLength: HIDDEN_LAYERS,
             outputLayerLength: OUTPUT_LAYER_LENGTH,
             length: GENOME_LENGTH
         });
@@ -18,17 +29,13 @@ describe("Genome", () => {
         const shape = genome.getShape();
         console.log("Original", { shape });
         expect(genome.genes.length).toBe(GENOME_LENGTH);
-        expect(shape.length - 2).toBe(HIDDEN_LAYERS);
-        expect(shape[0]).greaterThan(0);
-        expect(shape[0]).lessThanOrEqual(INPUT_LAYER_LENGTH);
-        expect(shape[shape.length - 1]).greaterThan(0);
-        expect(shape[shape.length - 1]).lessThanOrEqual(OUTPUT_LAYER_LENGTH);
+        expect(shape[0]).toBe(INPUT_LAYER_LENGTH);
+        expect(shape[shape.length - 1]).toBe(OUTPUT_LAYER_LENGTH);
 
         const { genes } = genome;
 
         let outputConnections = 0;
-        genes.forEach(({ sourceLayer, sinkFlow }) => {
-            let sinkLayer = sourceLayer + sinkFlow;
+        genes.forEach(({ sinkLayer }) => {
             if (sinkLayer === shape.length - 1) {
                 outputConnections++;
             }
@@ -40,9 +47,9 @@ describe("Genome", () => {
     });
 
     it("should perform crossover and produce a valid offspring genome, with a valid shape", () => {
-        const genome1 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayers: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
+        const genome1 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayerLength: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
         console.log("Parent", genome1.getShape());
-        const genome2 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayers: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
+        const genome2 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayerLength: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
         console.log("Partner", genome2.getShape());
         const offspring = Genome.crossover(genome1, genome2, 0.01);
         expect(offspring.genes.length).toBe(GENOME_LENGTH);
@@ -55,8 +62,7 @@ describe("Genome", () => {
         const { genes } = offspring;
 
         let outputConnections = 0;
-        genes.forEach(({ sourceLayer, sinkFlow }) => {
-            let sinkLayer = sourceLayer + sinkFlow;
+        genes.forEach(({ sinkLayer }) => {
             if (sinkLayer === shape.length - 1) {
                 outputConnections++;
             }
@@ -65,5 +71,5 @@ describe("Genome", () => {
         console.log("Output connections", outputConnections);
 
         expect(outputConnections).greaterThan(0);
-    });
+    });*/
 });

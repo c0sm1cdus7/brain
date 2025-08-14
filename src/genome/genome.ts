@@ -1,153 +1,172 @@
-import { randomInt } from "crypto";
-
-function randomNumber(min: number, max: number): number {
+export function randomNumber(min: number, max: number): number {
     return Math.random() * (max - min) + min;
 }
 
-function randomInteger(min: number, max: number): number {
-    return randomInt(min, max + 1);
+export function randomInteger(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-type SinkFlow = -1 | 0 | 1;
+interface NewGeneParameters {
+    sourceLayer: number;
+    sourceIndex: number;
+    sinkLayer: number;
+    sinkIndex: number;
+    weight: number;
+}
 
 export class Gene {
     sourceLayer: number;
     sourceIndex: number;
-    sinkFlow: SinkFlow;
+    sinkLayer: number;
     sinkIndex: number;
     weight: number;
 
-    constructor(sourceLayer: number, sourceIndex: number, sinkFlow: SinkFlow, sinkIndex: number, weight: number) {
+    constructor({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight }: NewGeneParameters) {
         this.sourceLayer = sourceLayer;
         this.sourceIndex = sourceIndex;
-        this.sinkFlow = sinkFlow;
+        this.sinkLayer = sinkLayer;
         this.sinkIndex = sinkIndex;
         this.weight = weight;
     }
 }
 
+export interface NewGenomeParameters {
+    inputLayerLength: number;
+    outputLayerLength: number;
+    length: number;
+}
+
 export class Genome {
+    inputLayerLength: number | null = null;
+    outputLayerLength: number | null = null;
     genes: Gene[] = [];
 
-    constructor(genes: Gene[]) {
+    constructor(genes: Gene[] = []) {
         this.genes = genes;
     }
 
-    static create({ inputLayerLength, hiddenLayers, outputLayerLength, length }: { inputLayerLength: number; hiddenLayers: number; outputLayerLength: number; length: number }): Genome {
-        const genes: Gene[] = [];
+    static create({ inputLayerLength, outputLayerLength, length }: NewGenomeParameters): Genome {
+        const genome = new Genome();
+        genome.inputLayerLength = inputLayerLength;
+        genome.outputLayerLength = outputLayerLength;
         for (let i = 0; i < length; i++) {
-            const shape = new Genome(genes).getShape();
-
-            if (!hiddenLayers) hiddenLayers = 1;
-
-            let sourceLayer = randomInteger(0, hiddenLayers);
-            let sourceIndex;
-            if (sourceLayer === 0) {
-                sourceIndex = randomInteger(0, inputLayerLength - 1);
-            } else {
-                sourceIndex = randomInteger(0, shape[sourceLayer] ?? 1);
-            }
-
-            let sinkFlow = randomInteger(-1, 1);
-            if (sourceLayer === 0) {
-                sinkFlow = 1;
-            } else if (sourceLayer === 1) {
-                sinkFlow = randomInteger(0, 1);
-            }
-            let sinkLayer = sourceLayer + sinkFlow;
-            let sinkIndex;
-            if (sinkLayer === hiddenLayers + 1) {
-                sinkIndex = randomInteger(0, outputLayerLength - 1);
-            } else {
-                sinkIndex = randomInteger(0, shape[sinkLayer] ?? 1);
-            }
-
-            const weight = Math.random() * 2 - 1;
-            genes.push(new Gene(sourceLayer, sourceIndex, sinkFlow as SinkFlow, sinkIndex, weight));
+            genome.addGene(genome.newRandomGene());
         }
-        return new Genome(genes);
+        return genome;
     }
 
-    getShape(): number[] {
-        let maxLayerIndex = 0;
-        for (const gene of this.genes) {
-            if (gene.sourceLayer > maxLayerIndex) maxLayerIndex = gene.sourceLayer;
-            let sinkLayer = gene.sourceLayer + gene.sinkFlow;
-            if (sinkLayer > maxLayerIndex) maxLayerIndex = sinkLayer;
-        }
-        const shape: number[] = new Array(maxLayerIndex + 1).fill(0);
+    countLayerNodes(layer: number): number {
+        const maxNodeIndex = this.genes.reduce((max, gene) => {
+            if (gene.sourceLayer === layer) max = Math.max(max, gene.sourceIndex);
+            if (gene.sinkLayer === layer) max = Math.max(max, gene.sinkIndex);
+            return max;
+        }, -1);
 
-        for (const { sourceLayer, sourceIndex, sinkFlow, sinkIndex } of this.genes) {
-            shape[sourceLayer] = Math.max(shape[sourceLayer], sourceIndex + 1);
-            let sinkLayer = sourceLayer + sinkFlow;
-            shape[sinkLayer] = Math.max(shape[sinkLayer], sinkIndex + 1);
+        if (layer === 0 && this.inputLayerLength !== null) {
+            return Math.max(this.inputLayerLength - 1, maxNodeIndex);
         }
-        return shape;
+
+        if (layer === 2 && this.outputLayerLength !== null) {
+            return Math.max(this.outputLayerLength - 1, maxNodeIndex);
+        }
+
+        return maxNodeIndex + 1;
     }
 
-    static crossover(genome1: Genome, genome2: Genome, mutationRate: number = 0): Genome {
-        const length = Math.max(genome1.genes.length, genome2.genes.length);
+    getShape(): [number, number, number] {
+        return [this.countLayerNodes(0) + 1, this.countLayerNodes(1) + 1, this.countLayerNodes(2) + 1];
+    }
 
-        const genome1Shape = genome1.getShape();
-        const genome2Shape = genome2.getShape();
-        const inputLayerLength = Math.max(genome1Shape[0], genome2Shape[0]);
-        const outputLayerLength = Math.max(genome1Shape[genome1Shape.length - 1], genome2Shape[genome2Shape.length - 1]);
+    private newRandomGene() {
+        let sourceLayer = randomInteger(0, 1);
+        let sourceIndex;
+        switch (sourceLayer) {
+            case 0:
+                sourceIndex = randomInteger(0, this.countLayerNodes(0));
+                break;
+            case 1:
+                sourceIndex = randomInteger(0, this.countLayerNodes(1) + 1);
+                break;
+            default:
+                sourceIndex = 0;
+        }
+        let sinkLayer = randomInteger(1, 2);
+        let sinkIndex;
+        switch (sinkLayer) {
+            case 1:
+                sinkIndex = randomInteger(0, this.countLayerNodes(1) + 1);
+                break;
+            case 2:
+                sinkIndex = randomInteger(0, this.countLayerNodes(2));
+                break;
+            default:
+                sinkIndex = 0;
+        }
+        let weight = randomNumber(-1, 1);
+        return new Gene({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight });
+    }
 
-        const genes: Gene[] = [];
-
-        for (let i = 0; i < length; i++) {
-            if (i < genome1.genes.length && i < genome2.genes.length) {
-                genes.push(Math.random() < 0.5 ? genome1.genes[i] : genome2.genes[i]);
-            } else if (i < genome1.genes.length) {
-                genes.push(genome1.genes[i]);
-            } else if (i < genome2.genes.length) {
-                genes.push(genome2.genes[i]);
+    private addGene(gene: Gene) {
+        for (let i = 0; i < this.genes.length; i++) {
+            if (
+                this.genes[i].sourceLayer === gene.sourceLayer &&
+                this.genes[i].sourceIndex === gene.sourceIndex &&
+                this.genes[i].sinkLayer === gene.sinkLayer &&
+                this.genes[i].sinkIndex === gene.sinkIndex
+            ) {
+                this.genes[i].weight = gene.weight;
+                return;
             }
         }
+        this.genes.push(gene);
+    }
 
-        const shape = new Genome(genes).getShape();
-
-        for (const gene of genes) {
-            if (Math.random() < mutationRate) {
-                switch (randomInteger(0, 3)) {
+    mutate(mutationRate: number = 0.001) {
+        let mutationIndex = randomInteger(0, this.genes.length);
+        if (Math.random() < mutationRate) {
+            if (mutationIndex === this.genes.length) {
+                this.addGene(this.newRandomGene());
+            } else {
+                let gene = this.genes[mutationIndex];
+                const mutationType = randomInteger(0, 4);
+                switch (mutationType) {
                     case 0:
                         gene.weight += randomNumber(-0.01, 0.01);
-                        gene.weight = Math.max(-1, Math.min(1, gene.weight));
                         break;
                     case 1:
-                        const sourceLayerMaxNeuronIndex = gene.sourceLayer === 0 ? inputLayerLength - 1 : shape[gene.sourceLayer];
-                        gene.sourceIndex = randomInteger(0, sourceLayerMaxNeuronIndex);
+                        gene.sourceLayer = randomInteger(0, 1);
                         break;
                     case 2:
-                        let sinkLayerIndex = gene.sourceLayer + gene.sinkFlow;
-                        if (sinkLayerIndex < 0) {
-                            throw new Error("Bad doggy: Logic broke");
-                        }
-                        gene.sinkIndex = randomInteger(0, sinkLayerIndex === shape.length - 1 ? outputLayerLength - 1 : shape[sinkLayerIndex]);
+                        gene.sourceIndex = randomInteger(0, this.countLayerNodes(gene.sourceLayer));
                         break;
                     case 3:
-                        gene.sourceLayer = randomInteger(0, shape.length - 1);
-                        if (gene.sourceLayer === 0) {
-                            gene.sourceIndex = randomInteger(0, inputLayerLength - 1);
-                        } else {
-                            gene.sourceIndex = randomInteger(0, shape[gene.sourceLayer] ?? 1);
-                        }
-                        gene.sinkFlow = randomInteger(-1, 1) as SinkFlow;
-                        if (gene.sourceLayer === 0) {
-                            gene.sinkFlow = 1;
-                        } else if (gene.sourceLayer === 1) {
-                            gene.sinkFlow = randomInteger(0, 1) as SinkFlow;
-                        }
-                        let sinkLayer = gene.sourceLayer + gene.sinkFlow;
-                        if (sinkLayer === shape.length - 1) {
-                            gene.sinkIndex = randomInteger(0, outputLayerLength - 1);
-                        } else {
-                            gene.sinkIndex = randomInteger(0, shape[sinkLayer] ?? 1);
-                        }
+                        gene.sinkLayer = randomInteger(1, 2);
+                        break;
+                    case 4:
+                        gene.sinkIndex = randomInteger(0, this.countLayerNodes(gene.sinkLayer));
+                        break;
                 }
             }
         }
+    }
 
-        return new Genome(genes);
+    static crossover(parent1: Genome, parent2: Genome, mutatationRate?: number): Genome {
+        const genes: Gene[] = [];
+        const maxLength = Math.max(parent1.genes.length, parent2.genes.length);
+
+        for (let i = 0; i < maxLength; i++) {
+            if (i < parent1.genes.length && i < parent2.genes.length) {
+                genes.push(Math.random() < 0.5 ? parent1.genes[i] : parent2.genes[i]);
+            } else if (i < parent1.genes.length) {
+                genes.push(parent1.genes[i]);
+            } else if (i < parent2.genes.length) {
+                genes.push(parent2.genes[i]);
+            }
+        }
+
+        const genome = new Genome(genes);
+        genome.mutate(mutatationRate);
+
+        return genome;
     }
 }

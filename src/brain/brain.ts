@@ -2,8 +2,6 @@ import { Genome } from "../genome/genome.js";
 import { Neuron } from "../neuron/neuron.js";
 import { Synapse } from "../synapse/synapse.js";
 
-export type Shape = [number, number, number];
-
 export class Brain {
     synapses: Synapse[] = [];
     neurons: Neuron[][];
@@ -11,14 +9,30 @@ export class Brain {
     constructor(genome: Genome) {
         const { genes } = genome;
 
-        const shape = genome.getShape();
-
-        this.neurons = shape.map((length) => Array.from({ length }, () => new Neuron()));
+        this.neurons = [
+            Array.from(
+                {
+                    length: genome.countLayerNodes(0) + 1
+                },
+                () => new Neuron()
+            ),
+            Array.from(
+                {
+                    length: genome.countLayerNodes(1) + 1
+                },
+                () => new Neuron()
+            ),
+            Array.from(
+                {
+                    length: genome.countLayerNodes(2) + 1
+                },
+                () => new Neuron()
+            )
+        ];
 
         genes.forEach((gene) => {
             const sourceNeuron = this.neurons[gene.sourceLayer][gene.sourceIndex];
-            const sinkLayer = gene.sourceLayer + gene.sinkFlow;
-            const sinkNeuron = this.neurons[sinkLayer][gene.sinkIndex];
+            const sinkNeuron = this.neurons[gene.sinkLayer][gene.sinkIndex];
             this.synapses.push(new Synapse(sourceNeuron, sinkNeuron, gene.weight));
         });
 

@@ -29,20 +29,17 @@ describe("Genome", () => {
             }
         });
 
-        console.log({ shape, sourceToOutputConnections, hiddenToOutputConnections, reverseConnections });
         expect(shape[0]).toBe(INPUT_LAYER_LENGTH);
         expect(shape[2]).toBe(OUTPUT_LAYER_LENGTH);
         expect(sourceToOutputConnections + hiddenToOutputConnections).toBeGreaterThan(0);
+        expect(reverseConnections).toBe(0);
     });
 
     it("should perform crossover and produce a valid offspring genome, with a valid shape", () => {
         const genome1 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
-        console.log("Genome1", genome1.getShape());
         const genome2 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, outputLayerLength: OUTPUT_LAYER_LENGTH, length: GENOME_LENGTH });
-        console.log("Genome2", genome2.getShape());
         const offspring = Genome.crossover(genome1, genome2, 0);
         const shape = offspring.getShape();
-        console.log("Offspring ", shape);
         const { genes } = offspring;
 
         let sourceToOutputConnections = 0;
@@ -58,7 +55,7 @@ describe("Genome", () => {
             }
         });
 
-        console.log({ shape, sourceToOutputConnections, hiddenToOutputConnections, reverseConnections });
         expect(sourceToOutputConnections + hiddenToOutputConnections).toBeGreaterThan(0);
+        expect(reverseConnections).toBe(0);
     });
 });

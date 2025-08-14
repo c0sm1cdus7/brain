@@ -12,19 +12,19 @@ export class Brain {
         this.neurons = [
             Array.from(
                 {
-                    length: genome.countLayerNodes(0) + 1
+                    length: genome.getLayerMaxNodeIndex(0) + 1
                 },
                 () => new Neuron()
             ),
             Array.from(
                 {
-                    length: genome.countLayerNodes(1) + 1
+                    length: genome.getLayerMaxNodeIndex(1) + 1
                 },
                 () => new Neuron()
             ),
             Array.from(
                 {
-                    length: genome.countLayerNodes(2) + 1
+                    length: genome.getLayerMaxNodeIndex(2) + 1
                 },
                 () => new Neuron()
             )

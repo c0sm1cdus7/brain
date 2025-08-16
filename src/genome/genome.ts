@@ -118,7 +118,7 @@ export class Genome {
                 offspring.genes.push(offspring.newRandomGene());
             } else {
                 let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = offspring.genes[mutationIndex];
-                switch (randomInteger(0, 0)) {
+                switch (randomInteger(0, 4)) {
                     case 0:
                         weight += randomNumber(-0.01, 0.01);
                         break;

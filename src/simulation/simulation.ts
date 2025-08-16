@@ -59,7 +59,7 @@ class Map {
     findClearPosition(): Position {
         let x: number, y: number;
         do {
-            x = Math.floor(Math.random() * this.width);
+            x = Math.floor((Math.random() * this.width) / 2);
             y = Math.floor(Math.random() * this.height);
         } while (this.checkPosition({ x, y }) !== 0);
         return { x, y };
@@ -108,6 +108,7 @@ interface SimulationOptions {
     genomeLength: number;
     mutationRate: number;
     inputLayerLength: number;
+    hiddenLayers: number;
     outputLayerLength: number;
 }
 
@@ -123,10 +124,11 @@ export class Simulation {
     }
 
     run(steps: number) {
-        const { population, genomeLength, selectionRate, mutationRate, inputLayerLength, outputLayerLength } = this.options;
+        const { population, genomeLength, selectionRate, mutationRate, inputLayerLength, hiddenLayers, outputLayerLength } = this.options;
         while (this.genepool.length < population) {
             const genome = Genome.create({
                 inputLayerLength,
+                hiddenLayers,
                 outputLayerLength,
                 maxLength: genomeLength
             });

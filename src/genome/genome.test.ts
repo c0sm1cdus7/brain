@@ -5,10 +5,12 @@ describe("Genome", () => {
     const INPUT_LAYER_LENGTH = 10;
     const OUTPUT_LAYER_LENGTH = 2;
     const GENOME_LENGTH = 100;
+    const HIDDEN_LAYERS = 3;
 
     it("should create a random genome with a proper shape", () => {
         const genome = Genome.create({
             inputLayerLength: INPUT_LAYER_LENGTH,
+            hiddenLayers: HIDDEN_LAYERS,
             outputLayerLength: OUTPUT_LAYER_LENGTH,
             maxLength: GENOME_LENGTH
         });
@@ -39,13 +41,13 @@ describe("Genome", () => {
         }
 
         genes.forEach(({ sourceLayer, sinkLayer }) => {
-            if (sourceLayer === 0 && sinkLayer === 2) {
+            if (sourceLayer === 0 && sinkLayer === HIDDEN_LAYERS + 1) {
                 sourceToOutputConnections++;
-            } else if (sourceLayer === 1 && sinkLayer === 2) {
+            } else if (sourceLayer > 0 && sinkLayer === HIDDEN_LAYERS + 1) {
                 hiddenToOutputConnections++;
             } else if (sourceLayer === 0 && sinkLayer === 1) {
                 sourceToHiddenConnection++;
-            } else if (sourceLayer === 1 && sinkLayer === 1) {
+            } else if (sourceLayer > 0 && sinkLayer < HIDDEN_LAYERS + 1) {
                 hiddenToHiddenConnections++;
             } else if (sourceLayer > sinkLayer) {
                 reverseConnections++;
@@ -64,7 +66,8 @@ describe("Genome", () => {
         });
 
         expect(shape[0]).toBeLessThanOrEqual(INPUT_LAYER_LENGTH);
-        expect(shape[2]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
+        expect(shape.length).toBe(HIDDEN_LAYERS + 2);
+        expect(shape[HIDDEN_LAYERS + 1]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
         expect(sourceToOutputConnections).toBe(0);
         expect(hiddenToHiddenConnections).toBeGreaterThan(0);
         expect(hiddenToOutputConnections).toBeGreaterThan(0);
@@ -77,12 +80,12 @@ describe("Genome", () => {
         let hiddenToHiddenConnections = 0;
         let hiddenToOutputConnections = 0;
         let reverseConnections = 0;
-        let shape: [number, number, number] = [0, 0, 0];
+        let shape: number[] = [0, 0, 0];
         let genes: Gene[] = [];
         let biasNeurons: number[] = [];
         for (let attempts = 0; attempts < 100; attempts++) {
-            const genome1 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, outputLayerLength: OUTPUT_LAYER_LENGTH, maxLength: GENOME_LENGTH });
-            const genome2 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, outputLayerLength: OUTPUT_LAYER_LENGTH, maxLength: GENOME_LENGTH });
+            const genome1 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayers: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, maxLength: GENOME_LENGTH });
+            const genome2 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayers: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, maxLength: GENOME_LENGTH });
             const offspring = Genome.crossover(genome1, genome2, 1);
             shape = offspring.getShape();
             genes = offspring.genes;
@@ -110,19 +113,20 @@ describe("Genome", () => {
             }
 
             genes.forEach(({ sourceLayer, sinkLayer }) => {
-                if (sourceLayer === 0 && sinkLayer === 2) {
+                if (sourceLayer === 0 && sinkLayer === HIDDEN_LAYERS + 1) {
                     sourceToOutputConnections++;
-                } else if (sourceLayer === 1 && sinkLayer === 2) {
+                } else if (sourceLayer > 0 && sinkLayer === HIDDEN_LAYERS + 1) {
                     hiddenToOutputConnections++;
                 } else if (sourceLayer === 0 && sinkLayer === 1) {
                     sourceToHiddenConnection++;
-                } else if (sourceLayer === 1 && sinkLayer === 1) {
+                } else if (sourceLayer > 0 && sinkLayer < HIDDEN_LAYERS + 1) {
                     hiddenToHiddenConnections++;
                 } else if (sourceLayer > sinkLayer) {
                     reverseConnections++;
                 }
             });
         }
+
         console.log({
             shape,
             sourceToOutputConnections,
@@ -133,8 +137,10 @@ describe("Genome", () => {
             biasNeurons: biasNeurons.length,
             genomeLength: genes.length
         });
+
         expect(shape[0]).toBeLessThanOrEqual(INPUT_LAYER_LENGTH);
-        expect(shape[2]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
+        expect(shape.length).toBe(HIDDEN_LAYERS + 2);
+        expect(shape[HIDDEN_LAYERS + 1]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
         expect(sourceToOutputConnections).toBe(0);
         expect(hiddenToHiddenConnections).toBeGreaterThan(0);
         expect(hiddenToOutputConnections).toBeGreaterThan(0);

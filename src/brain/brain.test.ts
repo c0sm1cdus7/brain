@@ -18,6 +18,7 @@ describe("Brain", () => {
     });*/
     const genome = Genome.create({
         inputLayerLength: INPUT_LAYER_LENGTH,
+        hiddenLayers: HIDDEN_LAYERS,
         outputLayerLength: OUTPUT_LAYER_LENGTH,
         maxLength: GENOME_LENGTH
     });

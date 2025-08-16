@@ -9,26 +9,7 @@ export class Brain {
     constructor(genome: Genome) {
         const { genes } = genome;
 
-        this.neurons = [
-            Array.from(
-                {
-                    length: genome.getLayerLength(0)
-                },
-                () => new Neuron()
-            ),
-            Array.from(
-                {
-                    length: genome.getLayerLength(1)
-                },
-                () => new Neuron()
-            ),
-            Array.from(
-                {
-                    length: genome.getLayerLength(2)
-                },
-                () => new Neuron()
-            )
-        ];
+        this.neurons = genome.getShape().map((length) => Array.from({ length }, () => new Neuron()));
 
         genes.forEach((gene) => {
             const sourceNeuron = this.neurons[gene.sourceLayer][gene.sourceIndex];

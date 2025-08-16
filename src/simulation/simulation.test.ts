@@ -7,8 +7,9 @@ const POPULATION = 20;
 const SELECTION_RATE = 0.2;
 const MUTATION_RATE = 0.01;
 const GENOME_LENGTH = 100;
-const MIN_ACCURACY = 0.7;
+const MIN_ACCURACY = 0.8;
 const INPUT_LAYER_LENGTH = 24;
+const HIDDEN_LAYERS = 3;
 const OUTPUT_LAYER_LENGTH = 1;
 
 describe("Simulation", () => {
@@ -18,6 +19,7 @@ describe("Simulation", () => {
         population: POPULATION,
         selectionRate: SELECTION_RATE,
         inputLayerLength: INPUT_LAYER_LENGTH,
+        hiddenLayers: HIDDEN_LAYERS,
         outputLayerLength: OUTPUT_LAYER_LENGTH
     });
 
@@ -33,19 +35,36 @@ describe("Simulation", () => {
     const shape = genome.getShape();
     const { genes } = genome;
 
+    const hiddenLayerLength = shape[1];
+    const hasSource = new Set<number>();
+
+    for (const gene of genes) {
+        if (gene.sinkLayer === 1) {
+            hasSource.add(gene.sinkIndex);
+        }
+    }
+
+    const biasNeurons: number[] = [];
+    for (let i = 0; i < hiddenLayerLength; i++) {
+        if (!hasSource.has(i)) {
+            biasNeurons.push(i);
+        }
+    }
+
     let sourceToOutputConnections = 0;
     let sourceToHiddenConnection = 0;
     let hiddenToHiddenConnections = 0;
     let hiddenToOutputConnections = 0;
     let reverseConnections = 0;
+
     genes.forEach(({ sourceLayer, sinkLayer }) => {
-        if (sourceLayer === 0 && sinkLayer === 2) {
+        if (sourceLayer === 0 && sinkLayer === HIDDEN_LAYERS + 1) {
             sourceToOutputConnections++;
-        } else if (sourceLayer === 1 && sinkLayer === 2) {
+        } else if (sourceLayer > 0 && sinkLayer === HIDDEN_LAYERS + 1) {
             hiddenToOutputConnections++;
         } else if (sourceLayer === 0 && sinkLayer === 1) {
             sourceToHiddenConnection++;
-        } else if (sourceLayer === 1 && sinkLayer === 1) {
+        } else if (sourceLayer > 0 && sinkLayer < HIDDEN_LAYERS + 1) {
             hiddenToHiddenConnections++;
         } else if (sourceLayer > sinkLayer) {
             reverseConnections++;
@@ -61,14 +80,17 @@ describe("Simulation", () => {
         hiddenToHiddenConnections,
         hiddenToOutputConnections,
         reverseConnections,
+        biasNeurons: biasNeurons.length,
         genomeLength: genes.length
     });
 
     expect(shape[0]).toBeLessThanOrEqual(INPUT_LAYER_LENGTH);
-    expect(shape[2]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
+    expect(shape.length).toBe(HIDDEN_LAYERS + 2);
+    expect(shape[HIDDEN_LAYERS + 1]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
     expect(sourceToOutputConnections).toBe(0);
     expect(hiddenToHiddenConnections).toBeGreaterThan(0);
     expect(hiddenToOutputConnections).toBeGreaterThan(0);
+    expect(reverseConnections).toBe(0);
     expect(reverseConnections).toBe(0);
 
     it(`should have an accuracy greater than ${MIN_ACCURACY}`, () => {

@@ -1,26 +1,28 @@
 import { describe, it, expect } from "vitest";
 import { Simulation } from "./simulation.js";
 
-const MAX_GENERATIONS = 1000;
+const MAX_GENERATIONS = 10000;
 const STEPS_PER_GENERATION = 100;
 const POPULATION = 20;
-const SELECTION_RATE = 0.2;
+const SELECTION_RATE = 0.5;
 const MUTATION_RATE = 0.1;
-const GENOME_LENGTH = 100;
+const GENOME_LENGTH = 50;
 const MIN_ACCURACY = 0.8;
 const INPUT_LAYER_LENGTH = 24;
 const HIDDEN_LAYERS = 3;
-const OUTPUT_LAYER_LENGTH = 1;
+const OUTPUT_LAYER_LENGTH = 2;
+const REVERSE_SYNAPSES = true;
 
 describe("Simulation", () => {
-    const simulation = new Simulation(100, 100, 10, {
+    const simulation = new Simulation(100, 100, 30, {
         genomeLength: GENOME_LENGTH,
         mutationRate: MUTATION_RATE,
         population: POPULATION,
         selectionRate: SELECTION_RATE,
         inputLayerLength: INPUT_LAYER_LENGTH,
         hiddenLayers: HIDDEN_LAYERS,
-        outputLayerLength: OUTPUT_LAYER_LENGTH
+        outputLayerLength: OUTPUT_LAYER_LENGTH,
+        reverseSynapses: REVERSE_SYNAPSES
     });
 
     let generation;
@@ -55,7 +57,7 @@ describe("Simulation", () => {
     let sourceToHiddenConnection = 0;
     let hiddenToHiddenConnections = 0;
     let hiddenToOutputConnections = 0;
-    let reverseConnections = 0;
+    let reverseSynapses = 0;
 
     genes.forEach(({ sourceLayer, sinkLayer }) => {
         if (sourceLayer === 0 && sinkLayer === HIDDEN_LAYERS + 1) {
@@ -66,8 +68,9 @@ describe("Simulation", () => {
             sourceToHiddenConnection++;
         } else if (sourceLayer > 0 && sinkLayer < HIDDEN_LAYERS + 1) {
             hiddenToHiddenConnections++;
-        } else if (sourceLayer > sinkLayer) {
-            reverseConnections++;
+        }
+        if (sourceLayer > sinkLayer) {
+            reverseSynapses++;
         }
     });
 
@@ -79,7 +82,7 @@ describe("Simulation", () => {
         sourceToHiddenConnection,
         hiddenToHiddenConnections,
         hiddenToOutputConnections,
-        reverseConnections,
+        reverseSynapses,
         biasNeurons: biasNeurons.length,
         genomeLength: genes.length
     });
@@ -90,9 +93,11 @@ describe("Simulation", () => {
     expect(sourceToOutputConnections).toBe(0);
     expect(hiddenToHiddenConnections).toBeGreaterThan(0);
     expect(hiddenToOutputConnections).toBeGreaterThan(0);
-    expect(reverseConnections).toBe(0);
-    expect(reverseConnections).toBe(0);
-
+    if (!REVERSE_SYNAPSES) {
+        expect(reverseSynapses).toBe(0);
+    } else {
+        expect(reverseSynapses).toBeGreaterThan(0);
+    }
     it(`should have an accuracy greater than ${MIN_ACCURACY}`, () => {
         expect(simulation.accuracy).toBeGreaterThanOrEqual(MIN_ACCURACY);
     });

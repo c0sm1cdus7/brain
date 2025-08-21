@@ -59,39 +59,24 @@ class Map {
     findClearPosition(): Position {
         let x: number, y: number;
         do {
-            x = Math.floor((Math.random() * this.width) / 2);
+            x = Math.floor(Math.random() * this.width);
             y = Math.floor(Math.random() * this.height);
         } while (this.checkPosition({ x, y }) !== 0);
         return { x, y };
     }
 
     checkPositionSurroundings({ x, y }: Position): number[] {
-        const positions = [
-            [-1, -1],
-            [0, -1],
-            [1, -1],
-            [-1, 0],
-            [1, 0],
-            [-1, 1],
-            [0, 1],
-            [1, 1],
-            [-2, -2],
-            [-1, -2],
-            [0, -2],
-            [1, -2],
-            [2, -2],
-            [-2, -1],
-            [2, -1],
-            [-2, 0],
-            [2, 0],
-            [-2, 1],
-            [2, 1],
-            [-2, 2],
-            [-1, 2],
-            [0, 2],
-            [1, 2],
-            [2, 2]
-        ];
+        const radius = 2;
+        const positions: [number, number][] = [];
+        for (let r = 1; r <= radius; r++) {
+            for (let dx = -r; dx <= r; dx++) {
+                for (let dy = -r; dy <= r; dy++) {
+                    if (Math.abs(dx) === r || Math.abs(dy) === r) {
+                        positions.push([dx, dy]);
+                    }
+                }
+            }
+        }
         return positions.map(([dx, dy]) => {
             return this.checkPosition({ x: x + dx, y: y + dy });
         });
@@ -110,6 +95,7 @@ interface SimulationOptions {
     inputLayerLength: number;
     hiddenLayers: number;
     outputLayerLength: number;
+    reverseSynapses: boolean;
 }
 
 export class Simulation {
@@ -124,13 +110,14 @@ export class Simulation {
     }
 
     run(steps: number) {
-        const { population, genomeLength, selectionRate, mutationRate, inputLayerLength, hiddenLayers, outputLayerLength } = this.options;
+        const { population, genomeLength, selectionRate, mutationRate, inputLayerLength, hiddenLayers, outputLayerLength, reverseSynapses } = this.options;
         while (this.genepool.length < population) {
             const genome = Genome.create({
                 inputLayerLength,
                 hiddenLayers,
                 outputLayerLength,
-                maxLength: genomeLength
+                maxLength: genomeLength,
+                reverseSynapses
             });
             this.genepool.push(genome);
         }
@@ -161,9 +148,9 @@ export class Simulation {
         }
         const reproducers: Genome[] = [];
         this.map.agents.forEach(({ position, genome }) => {
-            const { x } = position;
-            const { width } = this.map;
-            if (x >= width * (1 - selectionRate)) {
+            const { x, y } = position;
+            const { width, height } = this.map;
+            if (x >= width * (1 - selectionRate) && y >= height * (1 - selectionRate)) {
                 reproducers.push(genome);
             }
         });

@@ -6,13 +6,15 @@ describe("Genome", () => {
     const OUTPUT_LAYER_LENGTH = 2;
     const GENOME_LENGTH = 100;
     const HIDDEN_LAYERS = 3;
+    const REVERSE_SYNAPSES = true;
 
     it("should create a random genome with a proper shape", () => {
         const genome = Genome.create({
             inputLayerLength: INPUT_LAYER_LENGTH,
             hiddenLayers: HIDDEN_LAYERS,
             outputLayerLength: OUTPUT_LAYER_LENGTH,
-            maxLength: GENOME_LENGTH
+            maxLength: GENOME_LENGTH,
+            reverseSynapses: REVERSE_SYNAPSES
         });
 
         const shape = genome.getShape();
@@ -49,7 +51,8 @@ describe("Genome", () => {
                 sourceToHiddenConnection++;
             } else if (sourceLayer > 0 && sinkLayer < HIDDEN_LAYERS + 1) {
                 hiddenToHiddenConnections++;
-            } else if (sourceLayer > sinkLayer) {
+            }
+            if (sourceLayer > sinkLayer) {
                 reverseConnections++;
             }
         });
@@ -71,7 +74,11 @@ describe("Genome", () => {
         expect(sourceToOutputConnections).toBe(0);
         expect(hiddenToHiddenConnections).toBeGreaterThan(0);
         expect(hiddenToOutputConnections).toBeGreaterThan(0);
-        expect(reverseConnections).toBe(0);
+        if (!REVERSE_SYNAPSES) {
+            expect(reverseConnections).toBe(0);
+        } else {
+            expect(reverseConnections).toBeGreaterThan(0);
+        }
     });
 
     it("should perform crossover and produce valid offsprings, with a valid shape", () => {
@@ -84,8 +91,20 @@ describe("Genome", () => {
         let genes: Gene[] = [];
         let biasNeurons: number[] = [];
         for (let attempts = 0; attempts < 100; attempts++) {
-            const genome1 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayers: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, maxLength: GENOME_LENGTH });
-            const genome2 = Genome.create({ inputLayerLength: INPUT_LAYER_LENGTH, hiddenLayers: HIDDEN_LAYERS, outputLayerLength: OUTPUT_LAYER_LENGTH, maxLength: GENOME_LENGTH });
+            const genome1 = Genome.create({
+                inputLayerLength: INPUT_LAYER_LENGTH,
+                hiddenLayers: HIDDEN_LAYERS,
+                outputLayerLength: OUTPUT_LAYER_LENGTH,
+                maxLength: GENOME_LENGTH,
+                reverseSynapses: !REVERSE_SYNAPSES
+            });
+            const genome2 = Genome.create({
+                inputLayerLength: INPUT_LAYER_LENGTH,
+                hiddenLayers: HIDDEN_LAYERS,
+                outputLayerLength: OUTPUT_LAYER_LENGTH,
+                maxLength: GENOME_LENGTH,
+                reverseSynapses: !REVERSE_SYNAPSES
+            });
             const offspring = Genome.crossover(genome1, genome2, 1);
             shape = offspring.getShape();
             genes = offspring.genes;
@@ -121,7 +140,8 @@ describe("Genome", () => {
                     sourceToHiddenConnection++;
                 } else if (sourceLayer > 0 && sinkLayer < HIDDEN_LAYERS + 1) {
                     hiddenToHiddenConnections++;
-                } else if (sourceLayer > sinkLayer) {
+                }
+                if (sourceLayer > sinkLayer) {
                     reverseConnections++;
                 }
             });
@@ -144,6 +164,6 @@ describe("Genome", () => {
         expect(sourceToOutputConnections).toBe(0);
         expect(hiddenToHiddenConnections).toBeGreaterThan(0);
         expect(hiddenToOutputConnections).toBeGreaterThan(0);
-        expect(reverseConnections).toBe(0);
+        if (!!REVERSE_SYNAPSES) expect(reverseConnections).toBe(0);
     });
 });

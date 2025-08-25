@@ -85,6 +85,22 @@ class Map {
     reset() {
         this.agents = [];
     }
+
+    render() {
+        let output = "";
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                const agentHere = this.agents.find((a) => a.position.x === x && a.position.y === y);
+                const obstacleHere = this.obstacles.find((o) => o.position.x === x && o.position.y === y);
+                if (agentHere) output += "A";
+                else if (obstacleHere) output += "#";
+                else output += ".";
+            }
+            output += "\n";
+        }
+        console.clear();
+        console.log(output);
+    }
 }
 
 interface SimulationOptions {
@@ -150,7 +166,7 @@ export class Simulation {
         this.map.agents.forEach(({ position, genome }) => {
             const { x, y } = position;
             const { width, height } = this.map;
-            if (x >= width * (1 - selectionRate) && y >= height * (1 - selectionRate)) {
+            if (x >= width * (1 - selectionRate)) {
                 reproducers.push(genome);
             }
         });

@@ -8,6 +8,7 @@
     "scripts": {
         "clean": "rm -rf node_modules dist pnpm-lock.yaml",
         "build": "tsc --declaration",
+        "dev": "pnpm build && node dist/index.js",
         "test": "vitest --run --bail=1",
         "postinstall": "tsc --sourcemap false"
     },

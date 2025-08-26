@@ -8,7 +8,7 @@ const SELECTION_RATE = 0.5;
 const MUTATION_RATE = 0.1;
 const GENOME_LENGTH = 100;
 const MIN_ACCURACY = 0.8;
-const INPUT_LAYER_LENGTH = 8;
+const INPUT_LAYER_LENGTH = 24;
 const HIDDEN_LAYERS = 1;
 const OUTPUT_LAYER_LENGTH = 2;
 const REVERSE_SYNAPSES = false;
@@ -59,7 +59,11 @@ describe("Simulation", () => {
     let hiddenToOutputConnections = 0;
     let reverseSynapses = 0;
 
+    let outputAsSourceConnections = 0;
     genes.forEach(({ sourceLayer, sinkLayer }) => {
+        if (sourceLayer === HIDDEN_LAYERS + 1 && sinkLayer < sourceLayer) {
+            outputAsSourceConnections++;
+        }
         if (sourceLayer === 0 && sinkLayer === HIDDEN_LAYERS + 1) {
             sourceToOutputConnections++;
         } else if (sourceLayer > 0 && sinkLayer === HIDDEN_LAYERS + 1) {
@@ -76,8 +80,9 @@ describe("Simulation", () => {
 
     console.log({
         generation,
-        accuracy: Number(simulation.accuracy.toFixed(2)),
+        accuraccy: (simulation.accuracy * 100).toFixed(2) + "%",
         shape,
+        outputAsSourceConnections,
         sourceToOutputConnections,
         sourceToHiddenConnection,
         hiddenToHiddenConnections,

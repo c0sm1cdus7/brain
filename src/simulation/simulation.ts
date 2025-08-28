@@ -18,11 +18,14 @@ class Agent {
     genome: Genome;
     brain: Brain;
     position: Position;
+    age: number = 0;
+    energy: number = 50;
 
-    constructor(genome: Genome, position: Position) {
+    constructor(genome: Genome, position: Position, energy: number) {
         this.genome = genome;
         this.brain = new Brain(genome);
         this.position = position;
+        this.energy = energy;
     }
 }
 
@@ -41,11 +44,11 @@ class Map {
         });
     }
 
-    spawnAgents(genomes: Genome[]) {
+    spawnAgents(genomes: Genome[], energy: number) {
         const agents: Agent[] = [];
         genomes.forEach((genome) => {
             const position = this.findClearPosition();
-            const agent = new Agent(genome, position);
+            const agent = new Agent(genome, position, energy);
             agents.push(agent);
         });
         this.agents = agents;
@@ -65,8 +68,7 @@ class Map {
         return { x, y };
     }
 
-    checkPositionSurroundings({ x, y }: Position): number[] {
-        const radius = 2;
+    checkPositionSurroundings({ x, y }: Position, radius = 2): number[] {
         const positions: [number, number][] = [];
         for (let r = 1; r <= radius; r++) {
             for (let dx = -r; dx <= r; dx++) {
@@ -126,6 +128,7 @@ export class Simulation {
     }
 
     run(steps: number) {
+        this.map.reset();
         const { population, genomeLength, selectionRate, mutationRate, inputLayerLength, hiddenLayers, outputLayerLength, reverseSynapses } = this.options;
         while (this.genepool.length < population) {
             const genome = Genome.create({
@@ -137,13 +140,13 @@ export class Simulation {
             });
             this.genepool.push(genome);
         }
-        this.map.spawnAgents(this.genepool);
+        this.map.spawnAgents(this.genepool, steps);
         for (let step = 0; step < steps; step++) {
             for (let i = 0; i < this.map.agents.length; i++) {
                 const agent = this.map.agents[i];
                 const { position } = agent;
-                const input = this.map.checkPositionSurroundings(position);
-                const output = agent.brain.feed([...input]);
+                const input = this.map.checkPositionSurroundings(position, 2);
+                const output = agent.brain.feed([Math.min(1, step / steps), ...input]);
                 let x = position.x;
                 if (output[0] > 0.5) {
                     x++;
@@ -166,7 +169,7 @@ export class Simulation {
         this.map.agents.forEach(({ position, genome }) => {
             const { x, y } = position;
             const { width, height } = this.map;
-            if (x >= width * (1 - selectionRate)) {
+            if (x >= width * (1 - selectionRate) && y > height * (1 - selectionRate)) {
                 reproducers.push(genome);
             }
         });

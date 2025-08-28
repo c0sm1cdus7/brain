@@ -1,20 +1,22 @@
 import { describe, it, expect } from "vitest";
 import { Simulation } from "./simulation.js";
 
-const MAX_GENERATIONS = 1000;
-const STEPS_PER_GENERATION = 100;
+const MAX_GENERATIONS = 100;
+const STEPS_PER_GENERATION = 50;
 const POPULATION = 50;
 const SELECTION_RATE = 0.5;
-const MUTATION_RATE = 0.1;
-const GENOME_LENGTH = 100;
+const MUTATION_RATE = 0.0001;
+const GENOME_LENGTH = 50;
 const MIN_ACCURACY = 0.8;
-const INPUT_LAYER_LENGTH = 24;
+const EYESIGHT = 3;
 const HIDDEN_LAYERS = 1;
 const OUTPUT_LAYER_LENGTH = 2;
 const REVERSE_SYNAPSES = false;
 
 describe("Simulation", () => {
-    const simulation = new Simulation(50, 50, 10, {
+    const INPUT_LAYER_LENGTH = 1 + 4 * EYESIGHT * (EYESIGHT + 1);
+
+    const simulation = new Simulation(100, 100, 10, {
         genomeLength: GENOME_LENGTH,
         mutationRate: MUTATION_RATE,
         population: POPULATION,
@@ -53,25 +55,22 @@ describe("Simulation", () => {
         }
     }
 
-    let sourceToOutputConnections = 0;
-    let sourceToHiddenConnection = 0;
-    let hiddenToHiddenConnections = 0;
-    let hiddenToOutputConnections = 0;
+    let illegalConnections = 0;
+    let sourceConnections = 0;
+    let hiddenConnections = 0;
+    let outputConnections = 0;
     let reverseSynapses = 0;
 
-    let outputAsSourceConnections = 0;
     genes.forEach(({ sourceLayer, sinkLayer }) => {
-        if (sourceLayer === HIDDEN_LAYERS + 1 && sinkLayer < sourceLayer) {
-            outputAsSourceConnections++;
+        if ((sourceLayer === 0 || sourceLayer === HIDDEN_LAYERS + 1) && sinkLayer === sourceLayer) {
+            illegalConnections++;
         }
-        if (sourceLayer === 0 && sinkLayer === HIDDEN_LAYERS + 1) {
-            sourceToOutputConnections++;
-        } else if (sourceLayer > 0 && sinkLayer === HIDDEN_LAYERS + 1) {
-            hiddenToOutputConnections++;
-        } else if (sourceLayer === 0 && sinkLayer === 1) {
-            sourceToHiddenConnection++;
-        } else if (sourceLayer > 0 && sinkLayer < HIDDEN_LAYERS + 1) {
-            hiddenToHiddenConnections++;
+        if (sourceLayer === 0) {
+            sourceConnections++;
+        } else if (sinkLayer === HIDDEN_LAYERS + 1) {
+            outputConnections++;
+        } else {
+            hiddenConnections++;
         }
         if (sourceLayer > sinkLayer) {
             reverseSynapses++;
@@ -82,26 +81,23 @@ describe("Simulation", () => {
         generation,
         accuraccy: (simulation.accuracy * 100).toFixed(2) + "%",
         shape,
-        outputAsSourceConnections,
-        sourceToOutputConnections,
-        sourceToHiddenConnection,
-        hiddenToHiddenConnections,
-        hiddenToOutputConnections,
+        illegalConnections,
+        sourceConnections,
+        hiddenConnections,
+        outputConnections,
         reverseSynapses,
         biasNeurons: biasNeurons.length,
         genomeLength: genes.length
     });
 
-    expect(shape[0]).toBeLessThanOrEqual(INPUT_LAYER_LENGTH);
+    expect(shape[0]).toBe(INPUT_LAYER_LENGTH);
     expect(shape.length).toBe(HIDDEN_LAYERS + 2);
-    expect(shape[HIDDEN_LAYERS + 1]).toBeLessThanOrEqual(OUTPUT_LAYER_LENGTH);
-    expect(sourceToOutputConnections).toBe(0);
-    expect(hiddenToHiddenConnections).toBeGreaterThan(0);
-    expect(hiddenToOutputConnections).toBeGreaterThan(0);
-    if (!REVERSE_SYNAPSES) {
-        //expect(reverseSynapses).toBe(0);
+    expect(shape[HIDDEN_LAYERS + 1]).toBe(OUTPUT_LAYER_LENGTH);
+    expect(illegalConnections).toBe(0);
+    if (REVERSE_SYNAPSES) {
+        expect(reverseSynapses).toBeGreaterThan(0);
     } else {
-        //expect(reverseSynapses).toBeGreaterThan(0);
+        expect(reverseSynapses).toBe(0);
     }
     it(`should have an accuracy greater than ${MIN_ACCURACY}`, () => {
         expect(simulation.accuracy).toBeGreaterThanOrEqual(MIN_ACCURACY);

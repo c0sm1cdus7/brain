@@ -60,11 +60,11 @@ export class Genome {
         if (layer === 0) return this.parameters.inputLayerLength;
         if (layer === this.parameters.hiddenLayers + 1) return this.parameters.outputLayerLength;
 
-        const maxNodeIndex = this.genes.reduce((max, gene) => {
-            if (gene.sourceLayer === layer) max = Math.max(max, gene.sourceIndex);
-            if (gene.sinkLayer === layer) max = Math.max(max, gene.sinkIndex);
-            return max;
-        }, 0);
+        let maxNodeIndex = 0;
+        for (const gene of this.genes) {
+            if (gene.sourceLayer === layer) maxNodeIndex = Math.max(maxNodeIndex, gene.sourceIndex);
+            if (gene.sinkLayer === layer) maxNodeIndex = Math.max(maxNodeIndex, gene.sinkIndex);
+        }
 
         return maxNodeIndex + 1;
     }
@@ -73,11 +73,11 @@ export class Genome {
         if (layer === 0) return this.parameters.inputLayerLength - 1;
         if (layer === this.parameters.hiddenLayers + 1) return this.parameters.outputLayerLength - 1;
 
-        const maxNodeIndex = this.genes.reduce((max, gene) => {
-            if (gene.sourceLayer === layer) max = Math.max(max, gene.sourceIndex);
-            if (gene.sinkLayer === layer) max = Math.max(max, gene.sinkIndex);
-            return max;
-        }, 0);
+        let maxNodeIndex = 0;
+        for (const gene of this.genes) {
+            if (gene.sourceLayer === layer) maxNodeIndex = Math.max(maxNodeIndex, gene.sourceIndex);
+            if (gene.sinkLayer === layer) maxNodeIndex = Math.max(maxNodeIndex, gene.sinkIndex);
+        }
 
         return maxNodeIndex + 1;
     }
@@ -88,11 +88,13 @@ export class Genome {
 
     private newRandomGene() {
         const { hiddenLayers, reverseSynapses } = this.parameters;
+
         let sourceLayer = randomInteger(0, reverseSynapses ? hiddenLayers + 1 : hiddenLayers);
         let sourceIndex = randomInteger(0, this.getLayerMaxNodeIndex(sourceLayer));
         let sinkLayer = randomInteger(Math.max(1, reverseSynapses ? sourceLayer - 1 : sourceLayer), Math.min(hiddenLayers + 1, sourceLayer === hiddenLayers + 1 ? sourceLayer - 1 : sourceLayer + 1));
         let sinkIndex = randomInteger(0, this.getLayerMaxNodeIndex(sinkLayer));
         let weight = randomNumber(-1, 1);
+
         return new Gene({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight });
     }
 
@@ -112,43 +114,29 @@ export class Genome {
         });
 
         for (let i = 0; i < maxLength; i++) {
-            let gene: Gene;
-            if (i < parent1.genes.length && i < parent2.genes.length) {
-                gene = Math.random() < 0.5 ? parent1.genes[i] : parent2.genes[i];
-            } else if (i < parent1.genes.length) {
-                gene = parent1.genes[i];
-            } else if (i < parent2.genes.length) {
-                gene = parent2.genes[i];
-            } else {
-                gene = offspring.newRandomGene();
-            }
+            const crossoverPoint = Math.floor(Math.random() * Math.min(parent1.genes.length, parent2.genes.length));
+            let gene: Gene = i < crossoverPoint ? parent1.genes[i] : parent2.genes[i] ?? offspring.newRandomGene();
             if (Math.random() < mutationRate) {
                 let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = gene;
-                switch (randomInteger(0, 4)) {
+                switch (randomInteger(0, 3)) {
                     case 0:
-                        weight += randomNumber(-0.1, 0.1);
+                        sourceIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sourceLayer));
                         break;
                     case 1:
-                        sourceLayer = randomInteger(0, reverseSynapses ? hiddenLayers + 1 : hiddenLayers);
-                        sourceIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sourceLayer));
                         sinkLayer = randomInteger(
                             Math.max(1, reverseSynapses ? sourceLayer - 1 : sourceLayer),
                             Math.min(sourceLayer === hiddenLayers + 1 ? sourceLayer - 1 : sourceLayer + 1, hiddenLayers + 1)
                         );
-                        sinkIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sinkLayer));
+                        let maxSinkIndex = offspring.getLayerMaxNodeIndex(sinkLayer);
+                        if (sinkIndex > maxSinkIndex) {
+                            sinkIndex = randomInteger(0, maxSinkIndex);
+                        }
                         break;
                     case 2:
-                        sourceIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sourceLayer));
+                        sinkIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sinkLayer));
                         break;
                     case 3:
-                        sinkLayer = randomInteger(
-                            Math.max(1, reverseSynapses ? sourceLayer - 1 : sourceLayer),
-                            Math.min(sourceLayer === hiddenLayers + 1 ? sourceLayer - 1 : sourceLayer + 1, hiddenLayers + 1)
-                        );
-                        sinkIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sinkLayer));
-                        break;
-                    case 4:
-                        sinkIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sinkLayer));
+                        weight += randomNumber(-0.01, 0.01);
                         break;
                 }
                 gene = new Gene({

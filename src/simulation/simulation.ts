@@ -14,12 +14,19 @@ class Obstacle {
     }
 }
 
+class Target {
+    position: Position;
+
+    constructor(position: Position) {
+        this.position = position;
+    }
+}
+
 class Agent {
     genome: Genome;
     brain: Brain;
     position: Position;
-    age: number = 0;
-    energy: number = 50;
+    energy: number;
 
     constructor(genome: Genome, position: Position, energy: number) {
         this.genome = genome;
@@ -34,10 +41,15 @@ class Map {
     height: number;
     agents: Agent[] = [];
     obstacles: Obstacle[] = [];
+    targets: Target[] = [];
 
-    constructor(width: number, height: number, obstacles: number) {
+    constructor(width: number, height: number, targets = 1, obstacles: number) {
         this.width = width;
         this.height = height;
+        this.targets = Array.from({ length: targets }, () => {
+            const clearPosition = this.findClearPosition();
+            return new Target(clearPosition);
+        });
         this.obstacles = Array.from({ length: obstacles }, () => {
             const clearPosition = this.findClearPosition();
             return new Obstacle(clearPosition);
@@ -56,7 +68,10 @@ class Map {
 
     checkPosition({ x, y }: Position): -1 | 0 | 1 {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) return -1;
-        return this.agents.some(({ position }) => position.x === x && position.y === y) ? 1 : this.obstacles.some(({ position }) => position.x === x && position.y === y) ? -1 : 0;
+        if (this.agents.some((a) => a.position.x === x && a.position.y === y)) return -1;
+        if (this.obstacles.some((o) => o.position.x === x && o.position.y === y)) return -1;
+        if (this.targets.some((t) => t.position.x === x && t.position.y === y)) return 1;
+        return 0;
     }
 
     findClearPosition(): Position {
@@ -66,6 +81,16 @@ class Map {
             y = Math.floor(Math.random() * this.height);
         } while (this.checkPosition({ x, y }) !== 0);
         return { x, y };
+    }
+
+    distanceToClosestTarget(position: Position): number {
+        if (!this.targets.length) return Infinity;
+        return this.targets.reduce((minDist, target) => {
+            const dx = target.position.x - position.x;
+            const dy = target.position.y - position.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            return Math.min(minDist, dist);
+        }, Infinity);
     }
 
     checkPositionSurroundings({ x, y }: Position, radius = 2): number[] {
@@ -107,7 +132,7 @@ class Map {
 
 interface SimulationOptions {
     population: number;
-    selectionRate: number;
+    targetSize: number;
     genomeLength: number;
     mutationRate: number;
     inputLayerLength: number;
@@ -120,16 +145,18 @@ export class Simulation {
     genepool: Genome[] = [];
     map: Map;
     accuracy: number = 0;
+    targetPosition: Position;
     options: SimulationOptions;
 
-    constructor(width: number, height: number, obstacles: number, options: SimulationOptions) {
-        this.map = new Map(width, height, obstacles);
+    constructor(width: number, height: number, targets: number, obstacles: number, options: SimulationOptions) {
+        this.map = new Map(width, height, targets, obstacles);
         this.options = options;
+        this.targetPosition = this.map.findClearPosition();
     }
 
     run(steps: number) {
         this.map.reset();
-        const { population, genomeLength, selectionRate, mutationRate, inputLayerLength, hiddenLayers, outputLayerLength, reverseSynapses } = this.options;
+        const { population, genomeLength, targetSize, mutationRate, inputLayerLength, hiddenLayers, outputLayerLength, reverseSynapses } = this.options;
         while (this.genepool.length < population) {
             const genome = Genome.create({
                 inputLayerLength,
@@ -141,12 +168,21 @@ export class Simulation {
             this.genepool.push(genome);
         }
         this.map.spawnAgents(this.genepool, steps);
+
         for (let step = 0; step < steps; step++) {
             for (let i = 0; i < this.map.agents.length; i++) {
                 const agent = this.map.agents[i];
-                const { position } = agent;
+                const { position, energy } = agent;
+                if (!energy) {
+                    continue;
+                }
+
+                const distance = this.map.distanceToClosestTarget(position);
+                const normalizedDistance = Math.max(0, Math.min(1, 1 - distance / Math.sqrt(this.map.width ** 2 + this.map.height ** 2)));
+                const normalizedEnergy = Math.max(0, Math.min(1, energy / steps));
+                const normalizedAge = Math.max(0, Math.min(1, step / steps));
                 const input = this.map.checkPositionSurroundings(position, 2);
-                const output = agent.brain.feed([Math.min(1, step / steps), ...input]);
+                const output = agent.brain.feed([normalizedDistance, normalizedEnergy, normalizedAge, ...input]);
                 let x = position.x;
                 if (output[0] > 0.5) {
                     x++;
@@ -162,20 +198,22 @@ export class Simulation {
                 const desiredPosition = { x, y };
                 if (this.map.checkPosition(desiredPosition) === 0) {
                     agent.position = desiredPosition;
+                    agent.energy--;
                 }
             }
         }
         const reproducers: Genome[] = [];
         this.map.agents.forEach(({ position, genome }) => {
-            const { x, y } = position;
-            const { width, height } = this.map;
-            if (x >= width * (1 - selectionRate) && y > height * (1 - selectionRate)) {
-                reproducers.push(genome);
-            }
+            const close = this.map.targets.some((target) => {
+                const dx = Math.abs(position.x - target.position.x);
+                const dy = Math.abs(position.y - target.position.y);
+                return dx <= Math.floor(this.map.width * targetSize) && dy <= Math.floor(this.map.height * targetSize);
+            });
+            if (close) reproducers.push(genome);
         });
         if (reproducers.length) {
             const offspring: Genome[] = [];
-            while (offspring.length < (population - reproducers.length) * (1 - selectionRate)) {
+            while (offspring.length < population - reproducers.length - this.options.population * 0.1) {
                 for (const parent of reproducers) {
                     const partners = reproducers.filter((genome) => genome !== parent);
                     const partner = partners[Math.floor(Math.random() * partners.length)] ?? parent;

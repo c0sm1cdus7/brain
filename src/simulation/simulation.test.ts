@@ -4,23 +4,23 @@ import { Simulation } from "./simulation.js";
 const MAX_GENERATIONS = 100;
 const STEPS_PER_GENERATION = 50;
 const POPULATION = 50;
-const SELECTION_RATE = 0.5;
-const MUTATION_RATE = 0.0001;
+const TARGET_SIZE = 0.4;
+const MUTATION_RATE = 0.001;
 const GENOME_LENGTH = 100;
 const MIN_ACCURACY = 0.8;
-const EYESIGHT = 3;
+const EYESIGHT = 1;
 const HIDDEN_LAYERS = 1;
 const OUTPUT_LAYER_LENGTH = 2;
-const REVERSE_SYNAPSES = false;
+const REVERSE_SYNAPSES = true;
 
 describe("Simulation", () => {
-    const INPUT_LAYER_LENGTH = 1 + 4 * EYESIGHT * (EYESIGHT + 1);
+    const INPUT_LAYER_LENGTH = 3 + 4 * EYESIGHT * (EYESIGHT + 1);
 
-    const simulation = new Simulation(100, 100, 10, {
+    const simulation = new Simulation(50, 50, 1, 5, {
         genomeLength: GENOME_LENGTH,
         mutationRate: MUTATION_RATE,
         population: POPULATION,
-        selectionRate: SELECTION_RATE,
+        targetSize: TARGET_SIZE,
         inputLayerLength: INPUT_LAYER_LENGTH,
         hiddenLayers: HIDDEN_LAYERS,
         outputLayerLength: OUTPUT_LAYER_LENGTH,
@@ -79,7 +79,7 @@ describe("Simulation", () => {
 
     console.log({
         generation,
-        accuraccy: (simulation.accuracy * 100).toFixed(2) + "%",
+        accuraccy: Number(simulation.accuracy.toFixed(2)),
         shape,
         illegalConnections,
         sourceConnections,

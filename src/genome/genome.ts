@@ -153,49 +153,6 @@ export class Genome {
             offspring.genes.push(gene);
         }
 
-        /*if (Math.random() < mutationRate) {
-            let mutationIndex = randomInteger(0, offspring.genes.length - 1);
-            if (mutationIndex === offspring.genes.length && offspring.genes.length < maxLength) {
-                offspring.genes.push(offspring.newRandomGene());
-            } else {
-                let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = offspring.genes[mutationIndex];
-                switch (randomInteger(0, 4)) {
-                    case 0:
-                        weight += randomNumber(-0.01, 0.01);
-                        break;
-                    case 1:
-                        sourceLayer = randomInteger(0, reverseSynapses ? hiddenLayers + 1 : hiddenLayers);
-                        sourceIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sourceLayer));
-                        sinkLayer = randomInteger(
-                            Math.max(1, reverseSynapses ? sourceLayer - 1 : sourceLayer),
-                            Math.min(sourceLayer === hiddenLayers + 1 ? sourceLayer - 1 : sourceLayer + 1, hiddenLayers + 1)
-                        );
-                        sinkIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sinkLayer));
-                        break;
-                    case 2:
-                        sourceIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sourceLayer));
-                        break;
-                    case 3:
-                        sinkLayer = randomInteger(
-                            Math.max(1, reverseSynapses ? sourceLayer - 1 : sourceLayer),
-                            Math.min(sourceLayer === hiddenLayers + 1 ? sourceLayer - 1 : sourceLayer + 1, hiddenLayers + 1)
-                        );
-                        sinkIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sinkLayer));
-                        break;
-                    case 4:
-                        sinkIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sinkLayer));
-                        break;
-                }
-                offspring.genes[mutationIndex] = new Gene({
-                    sourceLayer,
-                    sourceIndex,
-                    sinkLayer,
-                    sinkIndex,
-                    weight
-                });
-            }
-        }*/
-
         return offspring;
     }
 }

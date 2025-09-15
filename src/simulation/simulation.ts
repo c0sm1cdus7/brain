@@ -23,7 +23,7 @@ class Map {
     width: number;
     height: number;
 
-    constructor(mapSize: number = 100, obstaclesCount: number = 1) {
+    constructor(mapSize: number, obstaclesCount: number) {
         this.obstacles = Array.from({ length: obstaclesCount }, () => new Obstacle(this.findClearPosition()));
         this.width = mapSize;
         this.height = mapSize;
@@ -98,7 +98,8 @@ export class Simulation {
         this.map.reset();
         const { population, genomeLength, mutationRate, hiddenLayers, outputLayerLength, reverseSynapses } = this.options;
 
-        const inputLayerLength = 1 + 4 * 3 * (3 + 1);
+        const eyesightInputLength = this.map.checkSurroundings({ x: 0, y: 0 }, 2).length;
+        const inputLayerLength = 1 + eyesightInputLength;
 
         while (this.genepool.length < population) this.genepool.push(Genome.create({ inputLayerLength, hiddenLayers, outputLayerLength, maxLength: genomeLength, reverseSynapses }));
 
@@ -106,11 +107,13 @@ export class Simulation {
 
         for (let step = 0; step < steps; step++) {
             for (const agent of this.map.agents) {
-                if (agent.energy <= 0) continue;
+                //if (agent.energy <= 0) continue;
 
                 const normalizedAge = step / steps;
-                const surroundings = this.map.checkSurroundings(agent.position, 3);
-                const output = agent.brain.feed([normalizedAge, ...surroundings]);
+                const normalizedEnergy = agent.energy / steps;
+                const normalizedSteps = Math.abs(step - steps) / steps;
+                const surroundings = this.map.checkSurroundings(agent.position, 2);
+                const output = agent.brain.feed([normalizedAge, normalizedSteps, normalizedEnergy, ...surroundings]);
 
                 let x = agent.position.x + (output[0] > 0.5 ? 1 : output[0] < -0.5 ? -1 : 0);
                 let y = agent.position.y + (output[1] > 0.5 ? 1 : output[1] < -0.5 ? -1 : 0);
@@ -124,12 +127,17 @@ export class Simulation {
 
         const reproducers: Genome[] = [];
 
-        this.map.agents.forEach(({ position, genome }) => {
-            const { x, y } = position;
-            if (x > this.map.width * (1 - 0.25)) {
+        const xMin = this.map.width * 0.75;
+        const yMin = this.map.height * 0.75;
+
+        for (const {
+            position: { x, y },
+            genome
+        } of this.map.agents) {
+            if (x > xMin && y > yMin) {
                 reproducers.push(genome);
             }
-        });
+        }
 
         const offspring: Genome[] = [];
         while (offspring.length < population - reproducers.length) {

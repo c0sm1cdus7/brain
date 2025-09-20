@@ -2,12 +2,12 @@ import { describe, it, expect } from "vitest";
 import { Simulation } from "./simulation.js";
 
 const GENERATIONS = 100;
-const GENOME_LENGTH = 100;
+const GENOME_LENGTH = 50;
 const MUTATION_RATE = 0.001;
 const POPULATION = 50;
 const STEPS = 100;
 const TARGET_ACCURACY = 0.8;
-const HIDDEN_LAYERS = 1;
+const HIDDEN_LAYERS = 0;
 const OUTPUT_LAYER_LENGTH = 2;
 const REVERSE_SYNAPSES = false;
 

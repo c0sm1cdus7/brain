@@ -136,7 +136,7 @@ describe("Genome", () => {
             }
 
             genes.forEach(({ sourceLayer, sinkLayer }) => {
-                if ((sourceLayer === 0 || sourceLayer === HIDDEN_LAYERS + 1) && sinkLayer === sourceLayer) {
+                if (sourceLayer === HIDDEN_LAYERS + 1 && sinkLayer === HIDDEN_LAYERS + 1) {
                     illegalConnections++;
                 }
                 if (sourceLayer === 0) {

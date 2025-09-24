@@ -140,7 +140,7 @@ export class Simulation {
         }
 
         const offspring: Genome[] = [];
-        while (offspring.length < population - reproducers.length) {
+        while (offspring.length < population - reproducers.length * 2) {
             for (const parent of reproducers) {
                 const partners = reproducers.filter((g) => g !== parent);
                 const partner = partners[Math.floor(Math.random() * partners.length)] ?? parent;

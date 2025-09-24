@@ -91,8 +91,7 @@ export class Genome {
 
         let sourceLayer = randomInteger(0, reverseSynapses ? hiddenLayers + 1 : hiddenLayers);
         let sourceIndex = randomInteger(0, this.getLayerMaxNodeIndex(sourceLayer));
-        //let sinkLayer = randomInteger(Math.max(1, reverseSynapses ? sourceLayer - 1 : sourceLayer), Math.min(hiddenLayers + 1, sourceLayer === hiddenLayers + 1 ? sourceLayer - 1 : sourceLayer + 1));
-        let sinkLayer = randomInteger(sourceLayer === 0 ? 1 : sourceLayer, hiddenLayers + 1);
+        let sinkLayer = randomInteger(Math.max(1, sourceLayer), hiddenLayers + 1);
         let sinkIndex = randomInteger(0, this.getLayerMaxNodeIndex(sinkLayer));
         let weight = randomNumber(-1, 1);
 
@@ -127,11 +126,7 @@ export class Genome {
                         sourceIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sourceLayer));
                         break;
                     case 2:
-                        // sinkLayer = randomInteger(
-                        //     Math.max(1, reverseSynapses ? sourceLayer - 1 : sourceLayer),
-                        //     Math.min(sourceLayer === hiddenLayers + 1 ? sourceLayer - 1 : sourceLayer + 1, hiddenLayers + 1)
-                        // );
-                        sinkLayer = randomInteger(sourceLayer === 0 ? 1 : sourceLayer, hiddenLayers + 1);
+                        sinkLayer = randomInteger(Math.max(1, sourceLayer), hiddenLayers + 1);
                         let maxSinkIndex = offspring.getLayerMaxNodeIndex(sinkLayer);
                         if (sinkIndex > maxSinkIndex) {
                             sinkIndex = randomInteger(0, maxSinkIndex);
@@ -142,6 +137,7 @@ export class Genome {
                         break;
                     case 4:
                         weight += randomNumber(-0.01, 0.01);
+                        weight = Math.max(-1, Math.min(1, weight));
                         break;
                 }
                 gene = new Gene({

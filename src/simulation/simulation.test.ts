@@ -84,8 +84,8 @@ describe("Simulation", () => {
         reverseSynapses,
         biasNeurons: biasNeurons.length,
         genomeLength: genes.length,
-        firstAgent: sortedAgents[0].position,
-        lastAgent: sortedAgents[sortedAgents.length - 1].position
+        firstAgentPosition: sortedAgents[0].position,
+        lastAgentPosition: sortedAgents[sortedAgents.length - 1].position
     });
     //expect(illegalConnections).toBe(0);
     if (REVERSE_SYNAPSES) {

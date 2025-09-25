@@ -127,8 +127,8 @@ export class Simulation {
 
         const reproducers: Genome[] = [];
 
-        const xMin = this.map.width * 0.75;
-        const yMin = this.map.height * 0.75;
+        const xMin = this.map.width * 0.7;
+        const yMin = this.map.height * 0.7;
 
         for (const {
             position: { x, y },
@@ -140,7 +140,7 @@ export class Simulation {
         }
 
         const offspring: Genome[] = [];
-        while (offspring.length < population - reproducers.length * 2) {
+        while (offspring.length < population - reproducers.length) {
             for (const parent of reproducers) {
                 const partners = reproducers.filter((g) => g !== parent);
                 const partner = partners[Math.floor(Math.random() * partners.length)] ?? parent;

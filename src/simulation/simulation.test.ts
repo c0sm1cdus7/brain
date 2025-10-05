@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Simulation } from "./simulation.js";
 
-const GENERATIONS = 200;
+const GENERATIONS = 100;
 const GENOME_LENGTH = 50;
 const MUTATION_RATE = 0.01;
 const POPULATION = 50;

@@ -136,8 +136,7 @@ export class Genome {
                         sinkIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sinkLayer));
                         break;
                     case 4:
-                        weight += randomNumber(-0.01, 0.01);
-                        weight = Math.max(-1, Math.min(1, weight));
+                        weight = randomNumber(-1, 1);
                         break;
                 }
                 gene = new Gene({

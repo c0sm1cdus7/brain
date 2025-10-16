@@ -9,7 +9,6 @@ const STEPS = 100;
 const TARGET_ACCURACY = 0.8;
 const HIDDEN_LAYERS = 1;
 const OUTPUT_LAYER_LENGTH = 2;
-const REVERSE_SYNAPSES = false;
 
 describe("Simulation", () => {
     const simulation = new Simulation(100, 20, {
@@ -17,8 +16,7 @@ describe("Simulation", () => {
         mutationRate: MUTATION_RATE,
         population: POPULATION,
         hiddenLayers: HIDDEN_LAYERS,
-        outputLayerLength: OUTPUT_LAYER_LENGTH,
-        reverseSynapses: REVERSE_SYNAPSES
+        outputLayerLength: OUTPUT_LAYER_LENGTH
     });
 
     let generation;
@@ -53,7 +51,6 @@ describe("Simulation", () => {
     let sourceConnections = 0;
     let hiddenConnections = 0;
     let outputConnections = 0;
-    let reverseSynapses = 0;
 
     genes.forEach(({ sourceLayer, sinkLayer }) => {
         if (sourceLayer === HIDDEN_LAYERS + 1 && sinkLayer === HIDDEN_LAYERS + 1) {
@@ -65,9 +62,6 @@ describe("Simulation", () => {
             outputConnections++;
         } else {
             hiddenConnections++;
-        }
-        if (sourceLayer > sinkLayer) {
-            reverseSynapses++;
         }
     });
 
@@ -81,18 +75,12 @@ describe("Simulation", () => {
         sourceConnections,
         hiddenConnections,
         outputConnections,
-        reverseSynapses,
         biasNeurons: biasNeurons.length,
         genomeLength: genes.length,
         firstAgentPosition: sortedAgents[0].position,
         lastAgentPosition: sortedAgents[sortedAgents.length - 1].position
     });
     //expect(illegalConnections).toBe(0);
-    if (REVERSE_SYNAPSES) {
-        expect(reverseSynapses).toBeGreaterThan(0);
-    } else {
-        expect(reverseSynapses).toBe(0);
-    }
     it(`should have an accuracy greater than ${TARGET_ACCURACY}`, () => {
         expect(simulation.accuracy).toBeGreaterThanOrEqual(TARGET_ACCURACY);
     });

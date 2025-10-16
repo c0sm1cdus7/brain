@@ -6,15 +6,13 @@ describe("Genome", () => {
     const OUTPUT_LAYER_LENGTH = 2;
     const GENOME_LENGTH = 100;
     const HIDDEN_LAYERS = 3;
-    const REVERSE_SYNAPSES = false;
 
     it("should create a random genome with a proper shape", () => {
         const genome = Genome.create({
             inputLayerLength: INPUT_LAYER_LENGTH,
             hiddenLayers: HIDDEN_LAYERS,
             outputLayerLength: OUTPUT_LAYER_LENGTH,
-            maxLength: GENOME_LENGTH,
-            reverseSynapses: REVERSE_SYNAPSES
+            maxLength: GENOME_LENGTH
         });
 
         const shape = genome.getShape();
@@ -24,7 +22,6 @@ describe("Genome", () => {
         let sourceConnections = 0;
         let hiddenConnections = 0;
         let outputConnections = 0;
-        let reverseSynapses = 0;
 
         const hiddenLayerLength = shape[1];
         const hasSource = new Set<number>();
@@ -53,9 +50,6 @@ describe("Genome", () => {
             } else {
                 hiddenConnections++;
             }
-            if (sourceLayer > sinkLayer) {
-                reverseSynapses++;
-            }
         });
 
         console.log({
@@ -64,7 +58,6 @@ describe("Genome", () => {
             sourceConnections,
             hiddenConnections,
             outputConnections,
-            reverseSynapses,
             biasNeurons: biasNeurons.length,
             genomeLength: genes.length
         });
@@ -76,11 +69,6 @@ describe("Genome", () => {
         expect(sourceConnections).toBeGreaterThan(0);
         expect(hiddenConnections).toBeGreaterThan(0);
         expect(outputConnections).toBeGreaterThan(0);
-        if (REVERSE_SYNAPSES) {
-            expect(reverseSynapses).toBeGreaterThan(0);
-        } else {
-            expect(reverseSynapses).toBe(0);
-        }
     });
 
     it("should perform crossover and produce valid offsprings, with a valid shape", () => {
@@ -88,7 +76,6 @@ describe("Genome", () => {
         let sourceConnections = 0;
         let hiddenConnections = 0;
         let outputConnections = 0;
-        let reverseSynapses = 0;
 
         let shape: number[] = [0, 0, 0];
         let genes: Gene[] = [];
@@ -99,15 +86,13 @@ describe("Genome", () => {
                 inputLayerLength: INPUT_LAYER_LENGTH,
                 hiddenLayers: HIDDEN_LAYERS,
                 outputLayerLength: OUTPUT_LAYER_LENGTH,
-                maxLength: GENOME_LENGTH,
-                reverseSynapses: !REVERSE_SYNAPSES
+                maxLength: GENOME_LENGTH
             });
             const genome2 = Genome.create({
                 inputLayerLength: INPUT_LAYER_LENGTH,
                 hiddenLayers: HIDDEN_LAYERS,
                 outputLayerLength: OUTPUT_LAYER_LENGTH,
-                maxLength: GENOME_LENGTH,
-                reverseSynapses: !REVERSE_SYNAPSES
+                maxLength: GENOME_LENGTH
             });
             const offspring = Genome.crossover(genome1, genome2, 1);
             shape = offspring.getShape();
@@ -117,7 +102,6 @@ describe("Genome", () => {
             sourceConnections = 0;
             hiddenConnections = 0;
             outputConnections = 0;
-            reverseSynapses = 0;
 
             const hiddenLayerLength = shape[1];
             const hasSource = new Set<number>();
@@ -146,9 +130,6 @@ describe("Genome", () => {
                 } else {
                     hiddenConnections++;
                 }
-                if (sourceLayer > sinkLayer) {
-                    reverseSynapses++;
-                }
             });
         }
 
@@ -158,7 +139,6 @@ describe("Genome", () => {
             sourceConnections,
             hiddenConnections,
             outputConnections,
-            reverseSynapses,
             biasNeurons: biasNeurons.length,
             genomeLength: genes.length
         });
@@ -170,10 +150,5 @@ describe("Genome", () => {
         expect(sourceConnections).toBeGreaterThan(0);
         expect(hiddenConnections).toBeGreaterThan(0);
         expect(outputConnections).toBeGreaterThan(0);
-        // if (!REVERSE_SYNAPSES) {
-        //     expect(reverseSynapses).toBeGreaterThan(0);
-        // } else {
-        //     expect(reverseSynapses).toBe(0);
-        // }
     });
 });

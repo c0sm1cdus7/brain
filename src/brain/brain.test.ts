@@ -6,15 +6,13 @@ const INPUT_LAYER_LENGTH = 1000;
 const HIDDEN_LAYERS = 3;
 const OUTPUT_LAYER_LENGTH = 2;
 const GENOME_LENGTH = 1000;
-const REVERSE_SYNAPSES = false;
 
 describe("Brain", () => {
     const genome = Genome.create({
         inputLayerLength: INPUT_LAYER_LENGTH,
         hiddenLayers: HIDDEN_LAYERS,
         outputLayerLength: OUTPUT_LAYER_LENGTH,
-        maxLength: GENOME_LENGTH,
-        reverseSynapses: REVERSE_SYNAPSES
+        maxLength: GENOME_LENGTH
     });
 
     const brain = new Brain(genome);

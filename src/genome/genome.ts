@@ -35,7 +35,6 @@ export interface GenomeParameters {
     hiddenLayers: number;
     outputLayerLength: number;
     maxLength: number;
-    reverseSynapses: boolean;
 }
 
 export class Genome {
@@ -105,14 +104,12 @@ export class Genome {
         const hiddenLayers = Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
         const outputLayerLength = Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
         const maxLength = Math.max(parent1.parameters.maxLength, parent2.parameters.maxLength);
-        const reverseSynapses = parent1.parameters.reverseSynapses;
 
         const offspring = new Genome([], {
             inputLayerLength,
             hiddenLayers,
             outputLayerLength,
-            maxLength,
-            reverseSynapses
+            maxLength
         });
 
         for (let i = 0; i < maxLength; i++) {

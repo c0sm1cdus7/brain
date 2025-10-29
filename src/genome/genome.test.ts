@@ -94,7 +94,7 @@ describe("Genome", () => {
                 outputLayerLength: OUTPUT_LAYER_LENGTH,
                 maxLength: GENOME_LENGTH
             });
-            const offspring = Genome.crossover(genome1, genome2, 1);
+            const offspring = Genome.crossover(genome1, genome2, 1, true);
             shape = offspring.getShape();
             genes = offspring.genes;
 

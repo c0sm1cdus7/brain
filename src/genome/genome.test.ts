@@ -12,7 +12,8 @@ describe("Genome", () => {
             inputLayerLength: INPUT_LAYER_LENGTH,
             hiddenLayers: HIDDEN_LAYERS,
             outputLayerLength: OUTPUT_LAYER_LENGTH,
-            maxLength: GENOME_LENGTH
+            maxLength: GENOME_LENGTH,
+            allowJumpingConnections: false
         });
 
         const shape = genome.getShape();
@@ -86,13 +87,15 @@ describe("Genome", () => {
                 inputLayerLength: INPUT_LAYER_LENGTH,
                 hiddenLayers: HIDDEN_LAYERS,
                 outputLayerLength: OUTPUT_LAYER_LENGTH,
-                maxLength: GENOME_LENGTH
+                maxLength: GENOME_LENGTH,
+                allowJumpingConnections: false
             });
             const genome2 = Genome.create({
                 inputLayerLength: INPUT_LAYER_LENGTH,
                 hiddenLayers: HIDDEN_LAYERS,
                 outputLayerLength: OUTPUT_LAYER_LENGTH,
-                maxLength: GENOME_LENGTH
+                maxLength: GENOME_LENGTH,
+                allowJumpingConnections: false
             });
             const offspring = Genome.crossover(genome1, genome2, 1, true);
             shape = offspring.getShape();

@@ -48,7 +48,13 @@ export class Brain {
 
         for (const synapse of this.synapses) {
             synapse.sink.accumulator += synapse.source.value * synapse.weight;
-            synapse.sink.value = Math.tanh(synapse.sink.accumulator);
+            // synapse.sink.value = Math.tanh(synapse.sink.accumulator);
+        }
+
+        for (let layer = 1; layer < this.neurons.length; layer++) {
+            this.neurons[layer].forEach((neuron) => {
+                neuron.value = Math.tanh(neuron.accumulator);
+            });
         }
 
         return this.neurons[this.neurons.length - 1].map((neuron) => neuron.value);

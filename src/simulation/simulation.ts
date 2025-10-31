@@ -100,7 +100,7 @@ export class Simulation {
         const eyesightInputLength = this.map.checkSurroundings({ x: 0, y: 0 }, 2).length;
         const inputLayerLength = 1 + eyesightInputLength;
 
-        while (this.genepool.length < population) this.genepool.push(Genome.create({ inputLayerLength, hiddenLayers, outputLayerLength, maxLength: genomeLength, allowJumpingConnections: false }));
+        while (this.genepool.length < population) this.genepool.push(Genome.create({ inputLayerLength, hiddenLayers, outputLayerLength, maxLength: genomeLength }));
 
         this.map.spawnAgents(this.genepool, steps);
 

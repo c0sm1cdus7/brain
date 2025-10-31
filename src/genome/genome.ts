@@ -34,7 +34,6 @@ export interface GenomeParameters {
     inputLayerLength: number;
     hiddenLayers: number;
     outputLayerLength: number;
-    allowJumpingConnections: boolean;
     maxLength: number;
 }
 
@@ -89,18 +88,18 @@ export class Genome {
     }
 
     private newRandomGene() {
-        const { hiddenLayers, allowJumpingConnections } = this.parameters;
+        const { hiddenLayers } = this.parameters;
 
         let sourceLayer = randomInteger(0, hiddenLayers);
         let sourceIndex = randomInteger(0, this.getLayerMaxNodeIndex(sourceLayer));
-        let sinkLayer = randomInteger(Math.max(1, sourceLayer), Math.min(allowJumpingConnections ? hiddenLayers + 1 : sourceLayer + 1, hiddenLayers + 1));
+        let sinkLayer = randomInteger(Math.max(1, sourceLayer), Math.min(sourceLayer + 1, hiddenLayers + 1));
         let sinkIndex = randomInteger(0, this.getLayerMaxNodeIndex(sinkLayer));
         let weight = Number(randomNumber(-1, 1).toFixed(4));
 
         return new Gene({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight });
     }
 
-    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001, allowJumpingConnections: boolean = false, allowGenomeExpansion: boolean = false): Genome {
+    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001, allowGenomeExpansion: boolean = false): Genome {
         const inputLayerLength = Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
         const hiddenLayers = Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
         const outputLayerLength = Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
@@ -110,7 +109,6 @@ export class Genome {
             inputLayerLength,
             hiddenLayers,
             outputLayerLength,
-            allowJumpingConnections,
             maxLength
         });
 
@@ -127,7 +125,7 @@ export class Genome {
                         sourceIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sourceLayer));
                         break;
                     case 2:
-                        sinkLayer = randomInteger(Math.max(1, sourceLayer), Math.min(allowJumpingConnections ? hiddenLayers + 1 : sourceLayer + 1, hiddenLayers + 1));
+                        sinkLayer = randomInteger(Math.max(1, sourceLayer), Math.min(sourceLayer + 1, hiddenLayers + 1));
                         let maxSinkIndex = offspring.getLayerMaxNodeIndex(sinkLayer);
                         if (sinkIndex > maxSinkIndex) {
                             sinkIndex = randomInteger(0, maxSinkIndex);
@@ -140,7 +138,11 @@ export class Genome {
                         weight = Number(randomNumber(-1, 1).toFixed(4));
                         break;
                     case 5:
-                        offspring.genes.push(offspring.newRandomGene());
+                        if (!allowGenomeExpansion) {
+                            ({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = offspring.newRandomGene());
+                        } else {
+                            offspring.genes.push(offspring.newRandomGene());
+                        }
                         break;
                 }
                 gene = new Gene({

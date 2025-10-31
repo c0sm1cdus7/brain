@@ -71,16 +71,14 @@ export class Genome {
     getLayerMaxNodeIndex(layer: number): number {
         if (layer === 0) return this.parameters.inputLayerLength - 1;
         if (layer === this.parameters.hiddenLayers + 1) return this.parameters.outputLayerLength - 1;
-        const maxInternalNeurons = (this.parameters.inputLayerLength + this.parameters.outputLayerLength + 2) / 2;
-        return Math.max(this.parameters.outputLayerLength + 1, Math.ceil(maxInternalNeurons / (layer + 1)));
-
-        // let maxNodeIndex = 0;
-        // for (const gene of this.genes) {
-        //     if (gene.sourceLayer === layer) maxNodeIndex = Math.max(maxNodeIndex, gene.sourceIndex);
-        //     if (gene.sinkLayer === layer) maxNodeIndex = Math.max(maxNodeIndex, gene.sinkIndex);
-        // }
-
-        // return maxNodeIndex + 1;
+        // const maxInternalNeurons = (this.parameters.inputLayerLength + this.parameters.outputLayerLength + 2) / 2;
+        // return Math.max(this.parameters.outputLayerLength + 1, Math.ceil(maxInternalNeurons / (layer + 1)));
+        let maxNodeIndex = 0;
+        for (const gene of this.genes) {
+            if (gene.sourceLayer === layer) maxNodeIndex = Math.max(maxNodeIndex, gene.sourceIndex);
+            if (gene.sinkLayer === layer) maxNodeIndex = Math.max(maxNodeIndex, gene.sinkIndex);
+        }
+        return maxNodeIndex + 1;
     }
 
     getShape(): number[] {
@@ -99,7 +97,7 @@ export class Genome {
         return new Gene({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight });
     }
 
-    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001, allowGenomeExpansion: boolean = false): Genome {
+    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001): Genome {
         const inputLayerLength = Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
         const hiddenLayers = Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
         const outputLayerLength = Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
@@ -117,7 +115,7 @@ export class Genome {
             let gene: Gene = i < crossoverPoint ? parent1.genes[i] : parent2.genes[i] ?? offspring.newRandomGene();
             if (Math.random() < mutationRate) {
                 let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = gene;
-                switch (randomInteger(0, allowGenomeExpansion ? 5 : 4)) {
+                switch (randomInteger(0, 4)) {
                     case 0:
                         ({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = offspring.newRandomGene());
                         break;
@@ -136,13 +134,6 @@ export class Genome {
                         break;
                     case 4:
                         weight = Number(randomNumber(-1, 1).toFixed(4));
-                        break;
-                    case 5:
-                        if (!allowGenomeExpansion) {
-                            ({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = offspring.newRandomGene());
-                        } else {
-                            offspring.genes.push(offspring.newRandomGene());
-                        }
                         break;
                 }
                 gene = new Gene({

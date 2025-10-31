@@ -143,7 +143,7 @@ export class Simulation {
             for (const parent of reproducers) {
                 const partners = reproducers.filter((g) => g !== parent);
                 const partner = partners[Math.floor(Math.random() * partners.length)] ?? parent;
-                offspring.push(Genome.crossover(parent, partner, mutationRate, true));
+                offspring.push(Genome.crossover(parent, partner, mutationRate));
                 if (offspring.length >= population - reproducers.length) break;
             }
         }

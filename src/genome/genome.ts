@@ -53,6 +53,10 @@ export class Genome {
         return genome;
     }
 
+    static createFromGenes(genes: Gene[], parameters: GenomeParameters): Genome {
+        return new Genome(genes, parameters);
+    }
+
     private getLayerLength(layer: number): number {
         if (layer === 0) return this.parameters.inputLayerLength;
         if (layer === this.parameters.hiddenLayers + 1) return this.parameters.outputLayerLength;

@@ -58,16 +58,21 @@ export class Genome {
     }
 
     private getLayerLength(layer: number): number {
-        if (layer === 0) return this.parameters.inputLayerLength;
-        if (layer === this.parameters.hiddenLayers + 1) return this.parameters.outputLayerLength;
-
         let layerMaxIndex = 0;
         for (const gene of this.genes) {
             if (gene.sourceLayer === layer) layerMaxIndex = Math.max(layerMaxIndex, gene.sourceIndex);
             if (gene.sinkLayer === layer) layerMaxIndex = Math.max(layerMaxIndex, gene.sinkIndex);
         }
 
-        return layerMaxIndex + 1;
+        if (layer === 0) {
+            layerMaxIndex = Math.max(layerMaxIndex, this.parameters.inputLayerLength);
+        } else if (layer === this.parameters.hiddenLayers + 1) {
+            layerMaxIndex = Math.max(layerMaxIndex, this.parameters.outputLayerLength);
+        } else {
+            layerMaxIndex++;
+        }
+
+        return layerMaxIndex;
     }
 
     private getLayerMaxNodeIndex(layer: number): number {

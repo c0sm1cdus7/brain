@@ -150,7 +150,8 @@ export class Genome {
                         offspring.genes.push(offspring.newRandomGene());
                         break;
                     case 6:
-                        offspring.genes.pop();
+                        const geneToRemoveIndex = Math.floor(Math.random() * offspring.genes.length);
+                        offspring.genes.splice(geneToRemoveIndex, 1);
                         continue;
                 }
                 gene = new Gene({

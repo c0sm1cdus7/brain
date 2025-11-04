@@ -70,31 +70,12 @@ export class Genome {
         const { inputLayerLength, hiddenLayers, outputLayerLength } = this.parameters;
         let layerMaxNodeIndex = this.getLayerLength(layer);
         if (layer === 0) {
-            layerMaxNodeIndex = Math.min(layerMaxNodeIndex, inputLayerLength - 1);
+            layerMaxNodeIndex = inputLayerLength - 1;
         } else if (layer === hiddenLayers + 1) {
-            layerMaxNodeIndex = outputLayerLength - 1; //Math.min(layerMaxNodeIndex, outputLayerLength - 1);
+            layerMaxNodeIndex = outputLayerLength - 1;
         }
         return layerMaxNodeIndex;
     }
-
-    // private getLayerMaxNodeIndex(layer: number): number {
-    //     const { inputLayerLength, hiddenLayers, outputLayerLength } = this.parameters;
-    //     let layerMaxNodeIndex = this.getLayerLength(layer) + 1;
-    //     if (layer === 0) {
-    //         layerMaxNodeIndex = Math.min(layerMaxNodeIndex, inputLayerLength);
-    //     } else if (layer === hiddenLayers + 1) {
-    //         layerMaxNodeIndex = Math.min(layerMaxNodeIndex, outputLayerLength);
-    //     }
-    //     return layerMaxNodeIndex;
-    //     // if (layer === 0) return this.parameters.inputLayerLength - 1;
-    //     // if (layer === this.parameters.hiddenLayers + 1) return this.parameters.outputLayerLength - 1;
-    //     // let layerMaxIndex = 0;
-    //     // for (const gene of this.genes) {
-    //     //     if (gene.sourceLayer === layer) layerMaxIndex = Math.max(layerMaxIndex, gene.sourceIndex);
-    //     //     if (gene.sinkLayer === layer) layerMaxIndex = Math.max(layerMaxIndex, gene.sinkIndex);
-    //     // }
-    //     // return layerMaxIndex + 1;
-    // }
 
     getNeuralNetworkShape(): number[] {
         return Array.from({ length: this.parameters.hiddenLayers + 2 }, (_, layer) => this.getLayerLength(layer));

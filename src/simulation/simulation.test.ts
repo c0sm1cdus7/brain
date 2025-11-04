@@ -2,16 +2,19 @@ import { describe, it, expect } from "vitest";
 import { Simulation } from "./simulation.js";
 
 const GENERATIONS = 100;
+const STEPS_PER_GENERATION = 100;
+
 const GENOME_LENGTH = 100;
 const MUTATION_RATE = 0.01;
-const POPULATION = 50;
-const STEPS = 100;
+
+const MAP_SIZE = 100;
+const POPULATION = 40;
 const TARGET_ACCURACY = 0.8;
 const HIDDEN_LAYERS = 1;
 const OUTPUT_LAYER_LENGTH = 2;
 
 describe("Simulation", () => {
-    const simulation = new Simulation(100, 20, {
+    const simulation = new Simulation(MAP_SIZE, {
         genomeLength: GENOME_LENGTH,
         mutationRate: MUTATION_RATE,
         population: POPULATION,
@@ -21,14 +24,14 @@ describe("Simulation", () => {
 
     let generation;
     for (generation = 0; generation < GENERATIONS; generation++) {
-        simulation.run(STEPS);
+        simulation.run(STEPS_PER_GENERATION);
         if (simulation.accuracy >= TARGET_ACCURACY) {
             break;
         }
     }
 
     const genome = simulation.genepool[0];
-    const shape = genome.getShape();
+    const shape = genome.getNeuralNetworkShape();
     const { genes } = genome;
 
     const hiddenLayerLength = shape[1];

@@ -8,14 +8,13 @@ describe("Genome", () => {
     const HIDDEN_LAYERS = 3;
 
     it("should create a random genome with a proper shape", () => {
-        const genome = Genome.create({
+        const genome = Genome.create(GENOME_LENGTH, {
             inputLayerLength: INPUT_LAYER_LENGTH,
             hiddenLayers: HIDDEN_LAYERS,
-            outputLayerLength: OUTPUT_LAYER_LENGTH,
-            maxLength: GENOME_LENGTH
+            outputLayerLength: OUTPUT_LAYER_LENGTH
         });
 
-        const shape = genome.getShape();
+        const shape = genome.getNeuralNetworkShape();
         const { genes } = genome;
 
         let illegalConnections = 0;
@@ -53,6 +52,7 @@ describe("Genome", () => {
         });
 
         console.log({
+            genes: genes[0],
             shape,
             illegalConnections,
             sourceConnections,
@@ -82,20 +82,18 @@ describe("Genome", () => {
         let biasNeurons: number[] = [];
 
         for (let attempts = 0; attempts < 100; attempts++) {
-            const genome1 = Genome.create({
+            const genome1 = Genome.create(GENOME_LENGTH, {
                 inputLayerLength: INPUT_LAYER_LENGTH,
                 hiddenLayers: HIDDEN_LAYERS,
-                outputLayerLength: OUTPUT_LAYER_LENGTH,
-                maxLength: GENOME_LENGTH
+                outputLayerLength: OUTPUT_LAYER_LENGTH
             });
-            const genome2 = Genome.create({
+            const genome2 = Genome.create(GENOME_LENGTH, {
                 inputLayerLength: INPUT_LAYER_LENGTH,
                 hiddenLayers: HIDDEN_LAYERS,
-                outputLayerLength: OUTPUT_LAYER_LENGTH,
-                maxLength: GENOME_LENGTH
+                outputLayerLength: OUTPUT_LAYER_LENGTH
             });
-            const offspring = Genome.crossover(genome1, genome2, 1, true);
-            shape = offspring.getShape();
+            const offspring = Genome.crossover(genome1, genome2, 1);
+            shape = offspring.getNeuralNetworkShape();
             genes = offspring.genes;
 
             illegalConnections = 0;

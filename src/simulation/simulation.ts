@@ -6,10 +6,6 @@ interface Position {
     y: number;
 }
 
-class Obstacle {
-    constructor(public position: Position) {}
-}
-
 class Agent {
     brain: Brain;
     constructor(public genome: Genome, public position: Position, public energy: number) {
@@ -19,12 +15,10 @@ class Agent {
 
 class Map {
     agents: Agent[] = [];
-    obstacles: Obstacle[] = [];
     width: number;
     height: number;
 
-    constructor(mapSize: number, obstaclesCount: number) {
-        this.obstacles = Array.from({ length: obstaclesCount }, () => new Obstacle(this.findClearPosition()));
+    constructor(mapSize: number) {
         this.width = mapSize;
         this.height = mapSize;
     }
@@ -36,7 +30,6 @@ class Map {
     checkPosition({ x, y }: Position): -1 | 0 | 1 {
         if (x < 0 || x >= this.width || y < 0 || y >= this.height) return -1;
         if (this.agents.some(({ position }) => position.x === x && position.y === y)) return 1;
-        if (this.obstacles.some(({ position }) => position.x === x && position.y === y)) return -1;
         return 0;
     }
 
@@ -58,20 +51,6 @@ class Map {
     reset() {
         this.agents = [];
     }
-
-    render() {
-        let output = "";
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                const agentHere = this.agents.find(({ position }) => position.x === x && position.y === y);
-                const obstacleHere = this.obstacles.find(({ position }) => position.x === x && position.y === y);
-                output += agentHere ? "A" : obstacleHere ? "#" : ".";
-            }
-            output += "\n";
-        }
-        console.clear();
-        console.log(output);
-    }
 }
 
 interface SimulationOptions {
@@ -88,8 +67,8 @@ export class Simulation {
     accuracy = 0;
     options: SimulationOptions;
 
-    constructor(mapSize: number, obstacleCount: number, options: SimulationOptions) {
-        this.map = new Map(mapSize, obstacleCount);
+    constructor(mapSize: number, options: SimulationOptions) {
+        this.map = new Map(mapSize);
         this.options = options;
     }
 
@@ -100,7 +79,7 @@ export class Simulation {
         const eyesightInputLength = this.map.checkSurroundings({ x: 0, y: 0 }, 2).length;
         const inputLayerLength = 1 + eyesightInputLength;
 
-        while (this.genepool.length < population) this.genepool.push(Genome.create({ inputLayerLength, hiddenLayers, outputLayerLength, maxLength: genomeLength }));
+        while (this.genepool.length < population) this.genepool.push(Genome.create(genomeLength, { inputLayerLength, hiddenLayers, outputLayerLength }));
 
         this.map.spawnAgents(this.genepool, steps);
 
@@ -126,8 +105,8 @@ export class Simulation {
 
         const reproducers: Genome[] = [];
 
-        const xMin = this.map.width * 0.7;
-        const yMin = this.map.height * 0.7;
+        const xMin = this.map.width * 0.75;
+        const yMin = this.map.height * 0.75;
 
         for (const {
             position: { x, y },

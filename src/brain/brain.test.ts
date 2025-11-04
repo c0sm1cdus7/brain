@@ -8,17 +8,16 @@ const OUTPUT_LAYER_LENGTH = 2;
 const GENOME_LENGTH = 1000;
 
 describe("Brain", () => {
-    const genome = Genome.create({
+    const genome = Genome.create(GENOME_LENGTH, {
         inputLayerLength: INPUT_LAYER_LENGTH,
         hiddenLayers: HIDDEN_LAYERS,
-        outputLayerLength: OUTPUT_LAYER_LENGTH,
-        maxLength: GENOME_LENGTH
+        outputLayerLength: OUTPUT_LAYER_LENGTH
     });
 
     const brain = new Brain(genome);
 
     it("should be initialized with the correct number of layers and neurons", () => {
-        const shape = genome.getShape();
+        const shape = genome.getNeuralNetworkShape();
         expect(brain.neurons.length).toBe(shape.length);
         expect(brain.neurons[0].length).toBe(shape[0]);
         expect(brain.neurons[brain.neurons.length - 1].length).toBe(shape[shape.length - 1]);

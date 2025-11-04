@@ -7,13 +7,17 @@ export class Brain {
     neurons: Neuron[][];
 
     constructor(genome: Genome) {
-        const { genes } = genome;
+        const { genes, parameters } = genome;
 
-        this.neurons = genome.getShape().map((length) => Array.from({ length }, () => new Neuron()));
+        this.neurons = genome.getNeuralNetworkShape().map((length) => Array.from({ length }, () => new Neuron()));
 
         genes.forEach((gene) => {
             const sourceNeuron = this.neurons[gene.sourceLayer][gene.sourceIndex];
             const sinkNeuron = this.neurons[gene.sinkLayer][gene.sinkIndex];
+            if (!sinkNeuron) {
+                console.log(parameters, gene, genome.getNeuralNetworkShape());
+                process.exit(1);
+            }
             this.synapses.push(new Synapse(sourceNeuron, sinkNeuron, gene.weight));
         });
 

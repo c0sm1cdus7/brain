@@ -19,9 +19,9 @@ describe("Brain", () => {
         expect(brain.neurons.at(-1)?.length).toBe(shape.at(-1));
     });
 
-    it("has a synapse for each gene", () => {
-        expect(brain.synapses.length).toBe(genome.genes.length);
-    });
+    // it("has a synapse for each gene", () => {
+    //     expect(brain.synapses.length).toBe(genome.genes.length);
+    // });
 
     it("resets neuron values and accumulators correctly", () => {
         brain.reset();

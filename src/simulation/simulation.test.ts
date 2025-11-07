@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Simulation } from "./simulation.js";
 
-const GENERATIONS = 100;
+const GENERATIONS = 200;
 const STEPS_PER_GENERATION = 100;
 
 const GENOME_LENGTH = 100;

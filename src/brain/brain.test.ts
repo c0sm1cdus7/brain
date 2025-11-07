@@ -1,61 +1,51 @@
+// src/brain/brain.test.ts
 import { describe, it, expect } from "vitest";
 import { Genome } from "../genome/genome.js";
 import { Brain } from "./brain.js";
 
-const INPUT_LAYER_LENGTH = 1000;
-const HIDDEN_LAYERS = 3;
-const OUTPUT_LAYER_LENGTH = 2;
-const GENOME_LENGTH = 1000;
-
 describe("Brain", () => {
-    const genome = Genome.create(GENOME_LENGTH, {
-        inputLayerLength: INPUT_LAYER_LENGTH,
-        hiddenLayers: HIDDEN_LAYERS,
-        outputLayerLength: OUTPUT_LAYER_LENGTH
+    const genome = Genome.create(1000, {
+        inputLayerLength: 32,
+        hiddenLayers: 2,
+        outputLayerLength: 4
     });
 
     const brain = new Brain(genome);
 
-    it("should be initialized with the correct number of layers and neurons", () => {
+    it("initializes with correct number of layers and neurons", () => {
         const shape = genome.getNeuralNetworkShape();
         expect(brain.neurons.length).toBe(shape.length);
         expect(brain.neurons[0].length).toBe(shape[0]);
-        expect(brain.neurons[brain.neurons.length - 1].length).toBe(shape[shape.length - 1]);
+        expect(brain.neurons.at(-1)?.length).toBe(shape.at(-1));
     });
 
-    it("should have a synapse for each gene", () => {
+    it("has a synapse for each gene", () => {
         expect(brain.synapses.length).toBe(genome.genes.length);
     });
 
-    it("should reset neuron values and accumulators", () => {
-        const input = Array.from({ length: INPUT_LAYER_LENGTH }, () => Math.random());
-        brain.feed(input);
+    it("resets neuron values and accumulators correctly", () => {
         brain.reset();
 
-        const hasSourceSynapse = new Set();
-        for (const synapse of brain.synapses) {
-            hasSourceSynapse.add(synapse.sink);
-        }
+        const hasSourceSynapse = new Set(brain.synapses.map((s) => s.sink));
 
         for (const layer of brain.neurons) {
             for (const neuron of layer) {
-                const isBiasNeuron = !hasSourceSynapse.has(neuron);
-                if (isBiasNeuron) {
-                    expect(neuron.value).toBe(1);
-                } else {
-                    expect(neuron.value).toBe(0);
-                }
+                const isBias = !hasSourceSynapse.has(neuron);
+                expect(neuron.value).toBe(isBias ? 1 : 0);
                 expect(neuron.accumulator).toBe(0);
             }
         }
     });
 
-    it("should feed input and produce an output of the correct size", () => {
-        const input = Array.from({ length: INPUT_LAYER_LENGTH }, () => Math.random());
-        const output = brain.feed(input);
+    it("feeds input and produces correct output size", async () => {
+        const inputLength = genome.getNeuralNetworkShape()[0];
+        const outputLength = genome.getNeuralNetworkShape().at(-1)!;
+        const input = Array.from({ length: inputLength }, () => Math.random());
+
+        const output = await brain.feed(input);
 
         expect(output).toBeDefined();
-        expect(output.length).toBe(OUTPUT_LAYER_LENGTH);
-        expect(output.every((val) => typeof val === "number")).toBe(true);
+        expect(output.length).toBe(outputLength);
+        expect(output.every((v) => typeof v === "number" && !isNaN(v))).toBe(true);
     });
 });

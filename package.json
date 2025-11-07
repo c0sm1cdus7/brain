@@ -9,10 +9,12 @@
         "clean": "rm -rf node_modules dist pnpm-lock.yaml",
         "build": "tsc --declaration",
         "dev": "pnpm build && node dist/index.js",
+        "start": "pnpm build && node dist/start.js",
         "test": "vitest --run --bail=1",
         "postinstall": "tsc --sourcemap false"
     },
     "dependencies": {
+        "@tensorflow/tfjs-node": "^4.22.0",
         "typescript": "^4.3.5"
     },
     "devDependencies": {

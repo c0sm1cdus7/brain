@@ -93,7 +93,7 @@ export class Genome {
         return new Gene({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight });
     }
 
-    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001, allowGeneRemoval: boolean = false): Genome {
+    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001, acid: boolean = false): Genome {
         const inputLayerLength = Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
         const hiddenLayers = Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
         const outputLayerLength = Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
@@ -110,7 +110,7 @@ export class Genome {
             let gene: Gene = i < crossoverPoint ? parent1.genes[i] : parent2.genes[i] ?? offspring.newRandomGene();
             if (Math.random() < mutationRate) {
                 let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = gene;
-                switch (randomInteger(0, allowGeneRemoval ? 7 : 6)) {
+                switch (randomInteger(0, acid ? 7 : 6)) {
                     case 0:
                         const newSourceLayer = randomInteger(0, hiddenLayers);
                         if (sourceLayer <= sinkLayer) {

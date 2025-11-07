@@ -14,11 +14,9 @@ export class Brain {
         genes.forEach((gene) => {
             const sourceNeuron = this.neurons[gene.sourceLayer][gene.sourceIndex];
             const sinkNeuron = this.neurons[gene.sinkLayer][gene.sinkIndex];
-            if (!sinkNeuron) {
-                console.log(parameters, gene, genome.getNeuralNetworkShape());
-                process.exit(1);
-            }
-            this.synapses.push(new Synapse(sourceNeuron, sinkNeuron, gene.weight));
+            const synapse = new Synapse(sourceNeuron, sinkNeuron, gene.weight);
+            this.synapses.push(synapse);
+            sourceNeuron.sinks.push(synapse);
         });
 
         this.reset();
@@ -45,16 +43,54 @@ export class Brain {
         }
 
         for (let layer = 1; layer < this.neurons.length; layer++) {
-            this.neurons[layer].forEach((neuron) => {
+            for (const neuron of this.neurons[layer]) {
                 neuron.accumulator = 0;
-            });
+                neuron.value = 0;
+            }
         }
 
-        for (const synapse of this.synapses) {
-            synapse.sink.accumulator += synapse.source.value * synapse.weight;
-            synapse.sink.value = Math.tanh(synapse.sink.accumulator);
+        for (let layer = 0; layer < this.neurons.length - 1; layer++) {
+            for (const neuron of this.neurons[layer]) {
+                for (const { sink, weight } of neuron.sinks) {
+                    sink.accumulator += neuron.value * weight;
+                }
+            }
+
+            for (const neuron of this.neurons[layer + 1]) {
+                neuron.value = Math.tanh(neuron.accumulator);
+            }
         }
 
-        return this.neurons[this.neurons.length - 1].map((neuron) => neuron.value);
+        return this.neurons[this.neurons.length - 1].map(({ value }) => value);
     }
+
+    // feeds(input: number[]): number[] {
+    //     for (let i = 0; i < Math.min(input.length, this.neurons[0].length); i++) {
+    //         this.neurons[0][i].value = isNaN(input[i]) ? 0 : input[i];
+    //     }
+
+    //     for (let layer = 1; layer < this.neurons.length; layer++) {
+    //         this.neurons[layer].forEach(({ value, accumulator }) => {
+    //             value = 0;
+    //             accumulator = 0;
+    //         });
+    //     }
+
+    //     for (let layer = 0; layer < this.neurons.length; layer++) {
+    //         this.neurons[layer].forEach(({ accumulator, value, sinks }) => {
+    //             sinks.forEach(({ sink, weight }) => {
+    //                 sink.accumulator += value * weight;
+    //             });
+    //             value = Math.tanh(accumulator);
+    //         });
+    //     }
+
+    //     // for (let layer = 0; layer < this.neurons.length; layer++) {
+    //     //     for (const synapse of this.synapses) {
+    //     //         synapse.sink.value = Math.tanh(synapse.sink.accumulator);
+    //     //     }
+    //     // }
+
+    //     return this.neurons[this.neurons.length - 1].map((neuron) => neuron.value);
+    // }
 }

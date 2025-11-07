@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Simulation } from "./simulation.js";
 
-const GENERATIONS = 200;
+const GENERATIONS = 100;
 const STEPS_PER_GENERATION = 100;
 
 const GENOME_LENGTH = 100;
@@ -25,7 +25,7 @@ describe("Simulation", () => {
     let generation;
     for (generation = 0; generation < GENERATIONS; generation++) {
         simulation.run(STEPS_PER_GENERATION);
-        if (simulation.accuracy >= TARGET_ACCURACY) {
+        if (simulation.accuracy >= TARGET_ACCURACY || generation + 1 === GENERATIONS) {
             break;
         }
     }

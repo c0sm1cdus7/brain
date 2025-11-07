@@ -68,14 +68,11 @@ export class Genome {
 
     private getLayerMaxNodeIndex(layer: number): number {
         const { inputLayerLength, hiddenLayers, outputLayerLength } = this.parameters;
-        const internalNeurons = inputLayerLength / (hiddenLayers + 1);
-        let layerMaxNodeIndex = 0;
+        let layerMaxNodeIndex = this.getLayerLength(layer);
         if (layer === 0) {
             layerMaxNodeIndex = inputLayerLength - 1;
         } else if (layer === hiddenLayers + 1) {
             layerMaxNodeIndex = outputLayerLength - 1;
-        } else {
-            layerMaxNodeIndex = internalNeurons / layer;
         }
         return layerMaxNodeIndex;
     }

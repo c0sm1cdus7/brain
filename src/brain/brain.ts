@@ -65,32 +65,21 @@ export class Brain {
     }
 
     feed(input: number[]): number[] {
+        for (let layer = 0; layer < this.neurons.length; layer++) {
+            this.neurons[layer].forEach((neuron) => {
+                neuron.value = 0;
+                neuron.accumulator = 0;
+            });
+        }
+
         for (let i = 0; i < Math.min(input.length, this.neurons[0].length); i++) {
             this.neurons[0][i].value = isNaN(input[i]) ? 0 : input[i];
         }
 
-        for (let layer = 1; layer < this.neurons.length; layer++) {
-            this.neurons[layer].forEach(({ value, accumulator }) => {
-                value = 0;
-                accumulator = 0;
-            });
+        for (const synapse of this.synapses) {
+            synapse.sink.accumulator += synapse.source.value * synapse.weight;
+            synapse.sink.value = Math.tanh(synapse.sink.accumulator);
         }
-
-        for (let layer = 0; layer < this.neurons.length; layer++) {
-            this.neurons[layer].forEach(({ accumulator, value, sinks }) => {
-                sinks.forEach(({ sink, weight }) => {
-                    sink.accumulator += value * weight;
-                });
-                value = Math.tanh(accumulator);
-            });
-        }
-
-        // for (let layer = 0; layer < this.neurons.length; layer++) {
-        //     for (const synapse of this.synapses) {
-        //         synapse.sink.accumulator += synapse.source.value * synapse.weight;
-        //         synapse.sink.value = Math.tanh(synapse.sink.accumulator);
-        //     }
-        // }
 
         return this.neurons[this.neurons.length - 1].map((neuron) => neuron.value);
     }

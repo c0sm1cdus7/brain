@@ -17,6 +17,7 @@ describe("Brain", () => {
         expect(brain.neurons.length).toBe(shape.length);
         expect(brain.neurons[0].length).toBe(shape[0]);
         expect(brain.neurons.at(-1)?.length).toBe(shape.at(-1));
+        console.log({ discardedSynapses: brain.discardedSynapses });
     });
 
     // it("has a synapse for each gene", () => {
@@ -42,7 +43,7 @@ describe("Brain", () => {
         const outputLength = genome.getNeuralNetworkShape().at(-1)!;
         const input = Array.from({ length: inputLength }, () => Math.random());
 
-        const output = await brain.feed(input);
+        const output = brain.feed(input);
 
         expect(output).toBeDefined();
         expect(output.length).toBe(outputLength);

@@ -5,6 +5,7 @@ import { Synapse } from "../synapse/synapse.js";
 export class Brain {
     synapses: Synapse[] = [];
     neurons: Neuron[][];
+    discardedSynapses: number = 0;
 
     constructor(genome: Genome) {
         let { genes, parameters } = genome;
@@ -31,7 +32,11 @@ export class Brain {
             }
         }
 
+        const previousGenes = genes.length;
+
         genes = genes.filter((g) => active.has(`${g.sourceLayer}:${g.sourceIndex}`) && active.has(`${g.sinkLayer}:${g.sinkIndex}`));
+
+        this.discardedSynapses = previousGenes - genes.length;
 
         genes.forEach((gene) => {
             const sourceNeuron = this.neurons[gene.sourceLayer][gene.sourceIndex];

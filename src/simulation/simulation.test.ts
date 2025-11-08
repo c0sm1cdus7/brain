@@ -4,7 +4,7 @@ import { Simulation } from "./simulation.js";
 const GENERATIONS = 200;
 const STEPS_PER_GENERATION = 100;
 
-const GENOME_LENGTH = 100;
+const GENOME_LENGTH = 50;
 const MUTATION_RATE = 0.01;
 
 const MAP_SIZE = 100;

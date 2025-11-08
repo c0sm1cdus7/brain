@@ -71,7 +71,7 @@ describe("Genome", () => {
         expect(outputConnections).toBeGreaterThan(0);
     });
 
-    it("should perform crossover and produce valid offsprings, with a valid shape", () => {
+    it("should perform crossover and produce valid offsprings", () => {
         let illegalConnections = 0;
         let sourceConnections = 0;
         let hiddenConnections = 0;
@@ -87,7 +87,7 @@ describe("Genome", () => {
                 hiddenLayers: HIDDEN_LAYERS,
                 outputLayerLength: OUTPUT_LAYER_LENGTH
             });
-            const genome2 = Genome.create(GENOME_LENGTH, {
+            const genome2 = Genome.create(GENOME_LENGTH + attempts * 10, {
                 inputLayerLength: INPUT_LAYER_LENGTH,
                 hiddenLayers: HIDDEN_LAYERS,
                 outputLayerLength: OUTPUT_LAYER_LENGTH

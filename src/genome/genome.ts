@@ -93,11 +93,11 @@ export class Genome {
         return new Gene({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight });
     }
 
-    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001, acid: boolean = false): Genome {
-        const inputLayerLength = Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
-        const hiddenLayers = Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
-        const outputLayerLength = Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
-        const genomeLength = Math.max(parent1.genes.length, parent2.genes.length);
+    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001, length?: number, genomeParameters?: GenomeParameters): Genome {
+        const inputLayerLength = genomeParameters ? genomeParameters.inputLayerLength : Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
+        const hiddenLayers = genomeParameters ? genomeParameters.hiddenLayers : Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
+        const outputLayerLength = genomeParameters ? genomeParameters.outputLayerLength : Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
+        const genomeLength = length ? length : Math.max(parent1.genes.length, parent2.genes.length);
 
         const offspring = new Genome([], {
             inputLayerLength,
@@ -110,17 +110,12 @@ export class Genome {
             let gene: Gene = i < crossoverPoint ? parent1.genes[i] : parent2.genes[i] ?? offspring.newRandomGene();
             if (Math.random() < mutationRate) {
                 let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = gene;
-                switch (randomInteger(0, acid ? 7 : 6)) {
+                switch (randomInteger(0, 6)) {
                     case 0:
-                        const newSourceLayer = randomInteger(0, hiddenLayers);
-                        if (sourceLayer <= sinkLayer) {
-                            sourceLayer = newSourceLayer;
-                            const sourceLayerMaxNodeIndex = offspring.getLayerMaxNodeIndex(sourceLayer);
-                            if (sourceIndex > sourceLayerMaxNodeIndex) {
-                                sourceIndex = randomInteger(0, sourceLayerMaxNodeIndex);
-                            }
-                        } else {
-                            ({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = offspring.newRandomGene());
+                        sourceLayer = randomInteger(sourceLayer === sinkLayer ? sourceLayer - 1 : sourceLayer, sinkLayer);
+                        const sourceLayerMaxNodeIndex = offspring.getLayerMaxNodeIndex(sourceLayer);
+                        if (sourceIndex > sourceLayerMaxNodeIndex) {
+                            sourceIndex = randomInteger(0, sourceLayerMaxNodeIndex);
                         }
                         break;
                     case 1:
@@ -145,10 +140,10 @@ export class Genome {
                         break;
                     case 6:
                         continue;
-                    case 7:
-                        const randomGeneIndex = Math.floor(Math.random() * offspring.genes.length);
-                        offspring.genes.splice(randomGeneIndex, 1);
-                        continue;
+                    // case 7:
+                    //     const randomGeneIndex = Math.floor(Math.random() * offspring.genes.length);
+                    //     offspring.genes.splice(randomGeneIndex, 1);
+                    //     continue;
                 }
                 gene = new Gene({
                     sourceLayer,

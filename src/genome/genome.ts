@@ -93,11 +93,11 @@ export class Genome {
         return new Gene({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight });
     }
 
-    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001, maxLength?: number, genomeParameters?: GenomeParameters): Genome {
-        const inputLayerLength = genomeParameters ? genomeParameters.inputLayerLength : Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
-        const hiddenLayers = genomeParameters ? genomeParameters.hiddenLayers : Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
-        const outputLayerLength = genomeParameters ? genomeParameters.outputLayerLength : Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
-        const genomeLength = Math.max(parent1.genes.length, parent2.genes.length, maxLength ?? 0);
+    static crossover(parent1: Genome, parent2: Genome, mutationRate: number = 0.001): Genome {
+        const inputLayerLength = Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
+        const hiddenLayers = Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
+        const outputLayerLength = Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
+        const genomeLength = Math.max(parent1.genes.length, parent2.genes.length) * (1 + mutationRate);
 
         const offspring = new Genome([], {
             inputLayerLength,

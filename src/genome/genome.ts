@@ -110,7 +110,7 @@ export class Genome {
             let gene: Gene = i < crossoverPoint ? parent1.genes[i] : parent2.genes[i] ?? offspring.newRandomGene();
             if (Math.random() < mutationRate) {
                 let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = gene;
-                switch (randomInteger(0, 7)) {
+                switch (randomInteger(0, 6)) {
                     case 0:
                         sourceLayer = randomInteger(sourceLayer === sinkLayer ? sourceLayer - 1 : sourceLayer, sinkLayer);
                         const sourceLayerMaxNodeIndex = offspring.getLayerMaxNodeIndex(sourceLayer);
@@ -139,10 +139,6 @@ export class Genome {
                         offspring.genes.push(offspring.newRandomGene());
                         break;
                     case 6:
-                        continue;
-                    case 7:
-                        const randomGeneIndex = Math.floor(Math.random() * offspring.genes.length);
-                        offspring.genes.splice(randomGeneIndex, 1);
                         continue;
                 }
                 gene = new Gene({

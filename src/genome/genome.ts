@@ -112,7 +112,7 @@ export class Genome {
                 let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = gene;
                 switch (randomInteger(0, 6)) {
                     case 0:
-                        sourceLayer = randomInteger(0, sinkLayer === hiddenLayers + 1 ? hiddenLayers : sinkLayer);
+                        sourceLayer = randomInteger(1, sinkLayer === hiddenLayers + 1 ? hiddenLayers : sinkLayer);
                         const sourceLayerMaxNodeIndex = offspring.getLayerMaxNodeIndex(sourceLayer);
                         if (sourceIndex > sourceLayerMaxNodeIndex) {
                             sourceIndex = randomInteger(0, sourceLayerMaxNodeIndex);
@@ -151,6 +151,90 @@ export class Genome {
             }
             offspring.genes.push(gene);
         }
+
+        return offspring;
+    }
+
+    static crossover2(parent1: Genome, parent2: Genome, mutationRate: number = 0.001): Genome {
+        const inputLayerLength = Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
+        const hiddenLayers = Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
+        const outputLayerLength = Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
+
+        const minLen = Math.min(parent1.genes.length, parent2.genes.length);
+        const maxLen = Math.max(parent1.genes.length, parent2.genes.length);
+
+        const genomeLength = Math.ceil(maxLen * (1 + mutationRate));
+
+        const offspring = new Genome([], {
+            inputLayerLength,
+            hiddenLayers,
+            outputLayerLength
+        });
+
+        // one crossover point → way faster
+        const crossoverPoint = (Math.random() * minLen) | 0;
+
+        // cache max node index per layer
+        const layerMaxNodeIndexCache: number[] = [];
+        for (let l = 0; l <= hiddenLayers + 1; l++) {
+            layerMaxNodeIndexCache[l] = offspring.getLayerMaxNodeIndex(l);
+        }
+
+        const extraGenes: Gene[] = [];
+
+        for (let i = 0; i < genomeLength; i++) {
+            const parentGene = i < crossoverPoint ? parent1.genes[i] : parent2.genes[i] ?? offspring.newRandomGene();
+
+            let gene = parentGene;
+
+            if (Math.random() < mutationRate) {
+                let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = gene;
+
+                switch ((Math.random() * 7) | 0) {
+                    case 0:
+                        sourceLayer = (Math.random() * (sinkLayer === hiddenLayers + 1 ? hiddenLayers : sinkLayer + 1)) | 0;
+                        sourceIndex = Math.min(sourceIndex, layerMaxNodeIndexCache[sourceLayer]);
+                        break;
+
+                    case 1:
+                        sourceIndex = (Math.random() * (layerMaxNodeIndexCache[sourceLayer] + 1)) | 0;
+                        break;
+
+                    case 2:
+                        sinkLayer = ((Math.random() * (hiddenLayers + 2 - Math.max(1, sourceLayer))) | 0) + Math.max(1, sourceLayer);
+                        sinkIndex = Math.min(sinkIndex, layerMaxNodeIndexCache[sinkLayer]);
+                        break;
+
+                    case 3:
+                        sinkIndex = (Math.random() * (layerMaxNodeIndexCache[sinkLayer] + 1)) | 0;
+                        break;
+
+                    case 4:
+                        weight = Math.max(-1, Math.min(weight + (Math.random() * 0.2 - 0.1), 1));
+                        break;
+
+                    case 5:
+                        extraGenes.push(offspring.newRandomGene());
+                        break;
+
+                    case 6:
+                        continue;
+                }
+
+                gene = new Gene({
+                    sourceLayer,
+                    sourceIndex,
+                    sinkLayer,
+                    sinkIndex,
+                    weight
+                });
+            }
+
+            offspring.genes.push(gene);
+        }
+
+        // add extra genes after loop so we don't break iteration
+        offspring.genes.push(...extraGenes);
 
         return offspring;
     }

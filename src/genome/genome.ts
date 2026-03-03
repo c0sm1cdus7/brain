@@ -107,7 +107,7 @@ export class Genome {
 
         for (let i = 0; i < genomeLength; i++) {
             const crossoverPoint = Math.floor(Math.random() * Math.min(parent1.genes.length, parent2.genes.length));
-            let gene: Gene = i < crossoverPoint ? parent1.genes[i] : parent2.genes[i] ?? offspring.newRandomGene();
+            let gene: Gene = i < crossoverPoint ? parent1.genes[i] : (parent2.genes[i] ?? offspring.newRandomGene());
             if (Math.random() < mutationRate) {
                 let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = gene;
                 switch (randomInteger(0, 6)) {
@@ -163,7 +163,7 @@ export class Genome {
         const minLen = Math.min(parent1.genes.length, parent2.genes.length);
         const maxLen = Math.max(parent1.genes.length, parent2.genes.length);
 
-        const genomeLength = Math.ceil(maxLen * (1 + mutationRate));
+        const genomeLength = Math.ceil(maxLen + randomInteger(0, maxLen * (1 + mutationRate)));
 
         const offspring = new Genome([], {
             inputLayerLength,
@@ -183,7 +183,7 @@ export class Genome {
         const extraGenes: Gene[] = [];
 
         for (let i = 0; i < genomeLength; i++) {
-            const parentGene = i < crossoverPoint ? parent1.genes[i] : parent2.genes[i] ?? offspring.newRandomGene();
+            const parentGene = i < crossoverPoint ? parent1.genes[i] : (parent2.genes[i] ?? offspring.newRandomGene());
 
             let gene = parentGene;
 

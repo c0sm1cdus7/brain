@@ -119,23 +119,29 @@ export class Genome {
                 switch (randomInteger(0, 4)) {
                     case 0:
                         sourceLayer = randomInteger(0, hiddenLayers);
-                        const sourceLayerMaxNodeIndex = sourceLayer === 0 ? layerMaxNodeIndexCache[sourceLayer] : layerMaxNodeIndexCache[sourceLayer] + 1;
-                        if (sourceIndex > sourceLayerMaxNodeIndex) {
-                            sourceIndex = randomInteger(0, sourceLayerMaxNodeIndex);
+                        sourceIndex = randomInteger(0, sourceLayer === 0 ? layerMaxNodeIndexCache[sourceLayer] : layerMaxNodeIndexCache[sourceLayer] + 1);
+                        if (sourceIndex > layerMaxNodeIndexCache[sourceLayer]) {
+                            layerMaxNodeIndexCache[sourceLayer] = sourceIndex;
                         }
                         break;
                     case 1:
-                        sourceIndex = randomInteger(0, layerMaxNodeIndexCache[sourceLayer] + 1);
+                        sourceIndex = randomInteger(0, sourceLayer === 0 ? layerMaxNodeIndexCache[sourceLayer] : layerMaxNodeIndexCache[sourceLayer] + 1);
+                        if (sourceIndex > layerMaxNodeIndexCache[sourceLayer]) {
+                            layerMaxNodeIndexCache[sourceLayer] = sourceIndex;
+                        }
                         break;
                     case 2:
                         sinkLayer = randomInteger(1, hiddenLayers + 1);
-                        const sinkLayerMaxNodeIndex = layerMaxNodeIndexCache[sinkLayer];
-                        if (sinkIndex > sinkLayerMaxNodeIndex) {
-                            sinkIndex = randomInteger(0, sinkLayerMaxNodeIndex);
+                        sinkIndex = randomInteger(0, sinkLayer === hiddenLayers + 1 ? layerMaxNodeIndexCache[sinkLayer] : layerMaxNodeIndexCache[sinkLayer] + 1);
+                        if (sinkIndex > layerMaxNodeIndexCache[sinkLayer]) {
+                            layerMaxNodeIndexCache[sinkLayer] = sinkIndex;
                         }
                         break;
                     case 3:
                         sinkIndex = randomInteger(0, sinkLayer === hiddenLayers + 1 ? layerMaxNodeIndexCache[sinkLayer] : layerMaxNodeIndexCache[sinkLayer] + 1);
+                        if (sinkIndex > layerMaxNodeIndexCache[sinkLayer]) {
+                            layerMaxNodeIndexCache[sinkLayer] = sinkIndex;
+                        }
                         break;
                     case 4:
                         const weightShift = randomNumber(-0.1, 0.1);

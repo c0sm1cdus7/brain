@@ -97,7 +97,7 @@ export class Genome {
         const inputLayerLength = Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
         const hiddenLayers = Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
         const outputLayerLength = Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
-        const genomeLength = Math.max(parent1.genes.length, parent2.genes.length);
+        const genomeLength = Math.ceil(Math.max(parent1.genes.length, parent2.genes.length) * (1 + mutationRate));
 
         const offspring = new Genome([], {
             inputLayerLength,
@@ -140,9 +140,6 @@ export class Genome {
                     case 4:
                         const weightShift = randomNumber(-0.1, 0.1);
                         weight = Math.max(-1, Math.min(weight + weightShift, 1));
-                        break;
-                    case 5:
-                        offspring.genes.push(offspring.newRandomGene());
                         break;
                 }
                 gene = new Gene({

@@ -86,7 +86,7 @@ export class Genome {
 
         let sourceLayer = randomInteger(0, hiddenLayers);
         let sourceIndex = randomInteger(0, this.getLayerMaxNodeIndex(sourceLayer));
-        let sinkLayer = randomInteger(Math.max(1, sourceLayer), hiddenLayers + 1);
+        let sinkLayer = randomInteger(1, hiddenLayers + 1);
         let sinkIndex = randomInteger(0, this.getLayerMaxNodeIndex(sinkLayer));
         let weight = randomNumber(-1, 1);
 
@@ -97,7 +97,7 @@ export class Genome {
         const inputLayerLength = Math.max(parent1.parameters.inputLayerLength, parent2.parameters.inputLayerLength);
         const hiddenLayers = Math.max(parent1.parameters.hiddenLayers, parent2.parameters.hiddenLayers);
         const outputLayerLength = Math.max(parent1.parameters.outputLayerLength, parent2.parameters.outputLayerLength);
-        const genomeLength = Math.ceil(Math.max(parent1.genes.length, parent2.genes.length) * (1 + mutationRate));
+        const genomeLength = Math.max(parent1.genes.length, parent2.genes.length);
 
         const offspring = new Genome([], {
             inputLayerLength,
@@ -105,31 +105,37 @@ export class Genome {
             outputLayerLength
         });
 
+        const crossoverPoint = Math.floor(Math.random() * Math.min(parent1.genes.length, parent2.genes.length));
+
+        const layerMaxNodeIndexCache: number[] = [];
+        for (let l = 0; l <= hiddenLayers + 1; l++) {
+            layerMaxNodeIndexCache[l] = offspring.getLayerMaxNodeIndex(l);
+        }
+
         for (let i = 0; i < genomeLength; i++) {
-            const crossoverPoint = Math.floor(Math.random() * Math.min(parent1.genes.length, parent2.genes.length));
             let gene: Gene = i < crossoverPoint ? parent1.genes[i] : (parent2.genes[i] ?? offspring.newRandomGene());
             if (Math.random() < mutationRate) {
                 let { sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight } = gene;
-                switch (randomInteger(0, 6)) {
+                switch (randomInteger(0, 5)) {
                     case 0:
-                        sourceLayer = randomInteger(1, sinkLayer === hiddenLayers + 1 ? hiddenLayers : sinkLayer);
-                        const sourceLayerMaxNodeIndex = offspring.getLayerMaxNodeIndex(sourceLayer);
+                        sourceLayer = randomInteger(0, hiddenLayers);
+                        const sourceLayerMaxNodeIndex = sourceLayer === 0 ? layerMaxNodeIndexCache[sourceLayer] : layerMaxNodeIndexCache[sourceLayer] + 1;
                         if (sourceIndex > sourceLayerMaxNodeIndex) {
                             sourceIndex = randomInteger(0, sourceLayerMaxNodeIndex);
                         }
                         break;
                     case 1:
-                        sourceIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sourceLayer));
+                        sourceIndex = randomInteger(0, layerMaxNodeIndexCache[sourceLayer] + 1);
                         break;
                     case 2:
-                        sinkLayer = randomInteger(Math.max(1, sourceLayer), hiddenLayers + 1);
-                        const sinkLayerMaxNodeIndex = offspring.getLayerMaxNodeIndex(sinkLayer);
+                        sinkLayer = randomInteger(1, hiddenLayers + 1);
+                        const sinkLayerMaxNodeIndex = layerMaxNodeIndexCache[sinkLayer];
                         if (sinkIndex > sinkLayerMaxNodeIndex) {
                             sinkIndex = randomInteger(0, sinkLayerMaxNodeIndex);
                         }
                         break;
                     case 3:
-                        sinkIndex = randomInteger(0, offspring.getLayerMaxNodeIndex(sinkLayer));
+                        sinkIndex = randomInteger(0, sinkLayer === hiddenLayers + 1 ? layerMaxNodeIndexCache[sinkLayer] : layerMaxNodeIndexCache[sinkLayer] + 1);
                         break;
                     case 4:
                         const weightShift = randomNumber(-0.1, 0.1);
@@ -138,8 +144,6 @@ export class Genome {
                     case 5:
                         offspring.genes.push(offspring.newRandomGene());
                         break;
-                    case 6:
-                        continue;
                 }
                 gene = new Gene({
                     sourceLayer,
@@ -171,10 +175,8 @@ export class Genome {
             outputLayerLength
         });
 
-        // one crossover point → way faster
         const crossoverPoint = (Math.random() * minLen) | 0;
 
-        // cache max node index per layer
         const layerMaxNodeIndexCache: number[] = [];
         for (let l = 0; l <= hiddenLayers + 1; l++) {
             layerMaxNodeIndexCache[l] = offspring.getLayerMaxNodeIndex(l);
@@ -195,24 +197,19 @@ export class Genome {
                         sourceLayer = (Math.random() * (sinkLayer === hiddenLayers + 1 ? hiddenLayers : sinkLayer + 1)) | 0;
                         sourceIndex = Math.min(sourceIndex, layerMaxNodeIndexCache[sourceLayer]);
                         break;
-
                     case 1:
                         sourceIndex = (Math.random() * (layerMaxNodeIndexCache[sourceLayer] + 1)) | 0;
                         break;
-
                     case 2:
                         sinkLayer = ((Math.random() * (hiddenLayers + 2 - Math.max(1, sourceLayer))) | 0) + Math.max(1, sourceLayer);
                         sinkIndex = Math.min(sinkIndex, layerMaxNodeIndexCache[sinkLayer]);
                         break;
-
                     case 3:
                         sinkIndex = (Math.random() * (layerMaxNodeIndexCache[sinkLayer] + 1)) | 0;
                         break;
-
                     case 4:
                         weight = Math.max(-1, Math.min(weight + (Math.random() * 0.2 - 0.1), 1));
                         break;
-
                     case 5:
                         extraGenes.push(offspring.newRandomGene());
                         break;
@@ -233,7 +230,6 @@ export class Genome {
             offspring.genes.push(gene);
         }
 
-        // add extra genes after loop so we don't break iteration
         offspring.genes.push(...extraGenes);
 
         return offspring;

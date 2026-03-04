@@ -85,9 +85,9 @@ export class Genome {
         const { hiddenLayers } = this.parameters;
 
         let sourceLayer = randomInteger(0, hiddenLayers);
-        let sourceIndex = randomInteger(0, this.getLayerMaxNodeIndex(sourceLayer));
+        let sourceIndex = randomInteger(0, sourceLayer === 0 ? this.getLayerMaxNodeIndex(sourceLayer) : this.getLayerMaxNodeIndex(sourceLayer) + 1);
         let sinkLayer = randomInteger(1, hiddenLayers + 1);
-        let sinkIndex = randomInteger(0, this.getLayerMaxNodeIndex(sinkLayer));
+        let sinkIndex = randomInteger(0, sinkLayer === hiddenLayers + 1 ? this.getLayerMaxNodeIndex(sinkLayer) : this.getLayerMaxNodeIndex(sinkLayer) + 1);
         let weight = randomNumber(-1, 1);
 
         return new Gene({ sourceLayer, sourceIndex, sinkLayer, sinkIndex, weight });

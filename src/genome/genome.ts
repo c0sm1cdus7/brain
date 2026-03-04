@@ -149,7 +149,7 @@ export class Genome {
                         break;
                     case 5:
                         if (offspring.genes.length) {
-                            offspring.genes.splice(offspring.genes.length - 1);
+                            offspring.genes.splice(offspring.genes.length - 1, 1);
                         }
                         break;
                 }

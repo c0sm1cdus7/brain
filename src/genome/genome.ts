@@ -147,6 +147,11 @@ export class Genome {
                         const weightShift = randomNumber(-0.1, 0.1);
                         weight = Math.max(-1, Math.min(weight + weightShift, 1));
                         break;
+                    case 5:
+                        if (offspring.genes.length) {
+                            offspring.genes.splice(offspring.genes.length - 1);
+                        }
+                        break;
                 }
                 gene = new Gene({
                     sourceLayer,
